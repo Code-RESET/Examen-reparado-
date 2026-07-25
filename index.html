@@ -444,6 +444,11 @@ mark{background:rgba(23,233,192,0.28); color:var(--text); border-radius:3px; pad
       </div>
     </div>
 
+    <button class="content-card" id="resumeQuizCard" style="display:none; width:100%; text-align:left; cursor:pointer; border:1px solid var(--accent); background:var(--bg-elev); color:var(--text); font-family:inherit;" onclick="resumeQuizSession()">
+      <h3>▶️ Reanudar quiz</h3>
+      <p id="resumeQuizSub"></p>
+    </button>
+
     <div class="quick-actions">
       <button class="qa-btn primary" onclick="startQuiz()">
         <span class="qa-ic">⚡</span>Quiz rápido
@@ -790,7 +795,8 @@ function defaultState(){
     dailyLog:{},      // 'YYYY-MM-DD' -> {answered, correct}
     examHistory:[],   // [{date, pct, total, correct}]
     confidenceLog:[], // [{qid, confidence, correct, date}] — últimos 200
-    feynmanCount:0
+    feynmanCount:0,
+    quizSession:null // {moduleScope, hardOnly, ids, index, score} — quiz en curso, para reanudar
   };
 }
 let STATE = loadState();
@@ -924,6 +930,7 @@ function startHardFactsQuiz(){
   document.getElementById('quizHeaderSub').textContent = `🔢 Datos duros · ${pool.length} detectados en el banco`;
   goto('quiz');
   renderQuizQuestion();
+  saveQuizSession();
 }
 
 /* Best-effort contextual tip for a failed question: matches key words from the
@@ -1042,6 +1049,18 @@ function renderHome(){
   document.getElementById('heroModsDone').textContent = modulesCompletedCount();
   const hfEl = document.getElementById('hardFactsCount');
   if(hfEl) hfEl.textContent = hardFactQuestions().length + ' detectados';
+
+  const resumeCard = document.getElementById('resumeQuizCard');
+  const s = STATE.quizSession;
+  if(resumeCard){
+    if(s && s.ids && s.ids.length){
+      resumeCard.style.display = 'block';
+      const label = s.hardOnly ? 'Datos duros' : (s.moduleScope ? moduleMeta(s.moduleScope).title : 'Quiz general');
+      document.getElementById('resumeQuizSub').textContent = `${label} · pregunta ${Math.min(s.index+1, s.ids.length)}/${s.ids.length} · ✔ ${s.score.correct} ✘ ${s.score.wrong}`;
+    } else {
+      resumeCard.style.display = 'none';
+    }
+  }
 
   const grid = document.getElementById('moduleGrid');
   grid.innerHTML = '';
@@ -1324,6 +1343,38 @@ let quizAnswered = false;
 let quizHardOnly = false;
 let quizSelectedLetter = null;
 
+/* Guarda el quiz en curso (deck, índice, marcador) para poder reanudarlo si
+   la app se recarga o se cierra a la mitad — antes se perdía por completo. */
+function saveQuizSession(){
+  STATE.quizSession = {
+    moduleScope: quizModuleScope,
+    hardOnly: quizHardOnly,
+    ids: quizDeck.map(q=>q.id),
+    index: quizIndex,
+    score: quizScore
+  };
+  saveState();
+}
+function clearQuizSession(){
+  if(STATE.quizSession){ STATE.quizSession = null; saveState(); }
+}
+function resumeQuizSession(){
+  const s = STATE.quizSession;
+  if(!s) return;
+  const deck = s.ids.map(id=>questionById(id)).filter(Boolean);
+  if(!deck.length || s.index>=deck.length){ clearQuizSession(); renderHome(); return; }
+  quizModuleScope = s.moduleScope;
+  quizHardOnly = s.hardOnly;
+  quizDeck = deck;
+  quizIndex = s.index;
+  quizScore = s.score;
+  document.getElementById('quizHeaderSub').textContent = quizHardOnly
+    ? `🔢 Datos duros · ${deck.length} detectados en el banco`
+    : (quizModuleScope ? moduleMeta(quizModuleScope).title : 'General · aleatorio');
+  goto('quiz');
+  renderQuizQuestion();
+}
+
 function startQuiz(modId, size){
   touchStreak();
   quizModuleScope = modId || null;
@@ -1343,6 +1394,7 @@ function startQuiz(modId, size){
   document.getElementById('quizHeaderSub').textContent = modId ? moduleMeta(modId).title : 'General · aleatorio';
   goto('quiz');
   renderQuizQuestion();
+  saveQuizSession();
 }
 function renderQuizQuestion(){
   quizAnswered = false;
@@ -1401,6 +1453,7 @@ function answerQuiz(letter, confidence){
   }
   c.next = Date.now() + BOX_INTERVALS[c.box];
   saveState();
+  saveQuizSession();
   checkGlobalAchievements();
 
   document.querySelectorAll('#quizOptions .opt-item').forEach(btn=>{
@@ -1532,9 +1585,11 @@ function quizNext(){
   if(quizIndex < quizDeck.length-1){
     quizIndex++;
     renderQuizQuestion();
+    saveQuizSession();
   } else {
     const pct = Math.round((quizScore.correct/quizDeck.length)*100);
     if(pct===100 && quizDeck.length>=10) unlockAchievement("quiz_perfect");
+    clearQuizSession();
     showFinalToast(pct);
     goto('home');
   }
