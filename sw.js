@@ -2,10 +2,11 @@
 // Estrategia: network-first con fallback a caché (cache-first para offline real).
 // No requiere conocer el nombre exacto del archivo HTML: cachea todo lo que se pida.
 
-const CACHE_NAME = 'rsti-study-v1';
+const CACHE_NAME = 'rsti-study-v2';
 const PRECACHE_URLS = [
   './',
   './index.html',
+  './data.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
