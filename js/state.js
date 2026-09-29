@@ -49,7 +49,7 @@ export function saveState() {
   if (safeSet(route.storageKey, JSON.stringify(STATE))) return;
   if (!warnedSaveFail) {
     warnedSaveFail = true;
-    showToast('⚠️ No se pudo guardar tu progreso (almacenamiento lleno o modo privado).');
+    showToast('No se pudo guardar tu progreso (almacenamiento lleno o modo privado).');
   }
 }
 

@@ -48,7 +48,7 @@ export async function callGemini(prompt, key) {
 
 /* ---------- "¿Por qué las otras están mal?" ---------- */
 const liveExplainCache = {};
-const EXPLAIN_LABEL = { quiz: '🤖 ¿Por qué las otras están mal?', exam: '🤖 ¿Por qué?' };
+const EXPLAIN_LABEL = { quiz: '¿Por qué las otras están mal?', exam: '¿Por qué?' };
 
 export function explainButton(qid, chosenLetter, ctx) {
   return `<button class="btn btn-outline btn-sm" data-action="explainWhy" data-qid="${qid}" data-letter="${chosenLetter || ''}" data-ctx="${ctx}">${EXPLAIN_LABEL[ctx]}</button>
@@ -62,12 +62,12 @@ async function explainWhyLive({ qid, letter, ctx }, btn) {
   if (liveExplainCache[cacheKey]) { container.innerHTML = liveExplainCache[cacheKey]; return; }
   const key = getGeminiKey();
   if (!key) {
-    container.innerHTML = '🔑 Configura tu clave API de Google Gemini primero (botón 🔑 arriba).';
+    container.innerHTML = 'Configura tu clave API de Google Gemini primero (botón de la llave, arriba).';
     openApiKeyModal();
     return;
   }
   btn.disabled = true;
-  btn.textContent = '⏳ Pensando...';
+  btn.textContent = 'Pensando…';
   container.innerHTML = '';
   const q = questionById(qid);
   const prompt = `${route.aiExplainIntro}
@@ -82,7 +82,7 @@ Explica en español, en máximo 4 líneas muy breves y claras, por qué la opci�
     liveExplainCache[cacheKey] = escapeHtml(result.text).replace(/\n/g, '<br>');
     container.innerHTML = liveExplainCache[cacheKey];
   } else {
-    container.innerHTML = `⚠ Error de API: ${escapeHtml(result.error)}<br>Verifica tu clave 🔑 o tu cuota disponible.`;
+    container.innerHTML = `Error de API: ${escapeHtml(result.error)}<br>Verifica tu clave o tu cuota disponible.`;
   }
   btn.textContent = EXPLAIN_LABEL[ctx];
   btn.disabled = false;
@@ -95,7 +95,7 @@ registerActions({
     const val = $('apiKeyInput').value.trim();
     if (val) safeSet(KEY_STORAGE, val); else safeRemove(KEY_STORAGE);
     $('apiKeyOverlay').classList.remove('show');
-    showToast(val ? '✓ Clave guardada' : 'Clave eliminada');
+    showToast(val ? 'Clave guardada' : 'Clave eliminada');
   },
   explainWhy: (data, btn) => explainWhyLive(data, btn),
 });

@@ -25,8 +25,8 @@ export function quizSessionLabel(s) {
 
 function headerSub(s) {
   const kind = s.kind || (s.hardOnly ? 'hard' : s.moduleScope ? 'module' : 'general');
-  if (kind === 'hard') return `🔢 Datos duros · ${hardFactQuestions().length} detectados en el banco`;
-  if (kind === 'weak') return `🎯 Puntos débiles · las que más has fallado`;
+  if (kind === 'hard') return `Datos duros · ${hardFactQuestions().length} detectados en el banco`;
+  if (kind === 'weak') return `Puntos débiles · las que más has fallado`;
   if (kind === 'module') return moduleMeta(s.moduleScope)?.title || '';
   return 'General · aleatorio';
 }
@@ -83,7 +83,7 @@ function selectOption(letter) {
   selected = letter;
   document.querySelectorAll('#quizOptions .opt-item').forEach((btn) => {
     btn.classList.add('disabled');
-    if (btn.dataset.letter === letter) btn.style.borderColor = 'var(--accent-2)';
+    if (btn.dataset.letter === letter) btn.style.borderColor = 'var(--accent)';
   });
   $('quizConfidence').hidden = false;
   $('quizConfidence').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -107,21 +107,22 @@ function answer(confidence) {
   checkGlobalAchievements();
 
   document.querySelectorAll('#quizOptions .opt-item').forEach((btn) => {
+    btn.style.borderColor = ''; // quita el borde de "seleccionada" para que se vea verde/rojo
     if (btn.dataset.letter === q.correct) btn.classList.add('correct');
     else if (btn.dataset.letter === letter) btn.classList.add('wrong');
   });
   const tip = explainFor(q);
   const overconfident = confidence >= 4 && !correct;
   $('quizFeedback').innerHTML = `<div class="feedback-box ${correct ? 'ok' : 'bad'}">
-    ${correct ? '✅ ¡Correcto!' : '❌ Incorrecto.'} La respuesta correcta es <b>${q.correct}) ${formatText(correctOption(q).text)}</b>.
+    <b>${correct ? 'Correcto.' : 'Incorrecto.'}</b> La respuesta correcta es <b>${q.correct}) ${formatText(correctOption(q).text)}</b>.
     <br><span class="muted">${route.unit}: ${escapeHtml(q.moduleTitle)}</span>
-    ${overconfident ? `<div class="fb-extra danger">⚠️ Estabas muy seguro y fallaste — esto es "falsa seguridad": revísala con más cuidado, es justo el tipo de error que te puede sorprender en el examen real.</div>` : ''}
-    ${tip ? `<div class="fb-extra">💡 ${escapeHtml(tip)}</div>` : ''}
+    ${overconfident ? `<div class="fb-extra danger">Estabas muy seguro y fallaste — esto es "falsa seguridad": revísala con más cuidado, es justo el tipo de error que te puede sorprender en el examen real.</div>` : ''}
+    ${tip ? `<div class="fb-extra muted">${escapeHtml(tip)}</div>` : ''}
     <div style="margin-top:10px;">${explainButton(q.id, letter, 'quiz')}</div>
   </div>`;
   $('quizScoreLabel').textContent = `✔ ${session.score.correct}   ✘ ${session.score.wrong}`;
   $('quizNextBtn').hidden = false;
-  $('quizNextBtn').textContent = session.index < deck.length - 1 ? 'Siguiente pregunta →' : 'Ver resultados 🏁';
+  $('quizNextBtn').textContent = session.index < deck.length - 1 ? 'Siguiente pregunta →' : 'Ver resultados';
 }
 
 function next() {
@@ -157,7 +158,7 @@ registerActions({
   },
   startWeak: () => {
     const weak = weakQuestions();
-    if (!weak.length) { showToast('Aún no tienes puntos débiles: responde algunas preguntas primero. 💪'); return; }
+    if (!weak.length) { showToast('Aún no tienes puntos débiles: responde algunas preguntas primero.'); return; }
     begin('weak', weak.slice(0, 15));
   },
   quizOption: ({ letter }) => selectOption(letter),

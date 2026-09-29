@@ -2,7 +2,7 @@
 // Estrategia: network-first con respaldo en caché (así funciona sin conexión).
 // Al cambiar archivos de la app, sube CACHE_NAME para que los celulares descarguen la versión nueva.
 
-const CACHE_NAME = 'rsti-study-v3';
+const CACHE_NAME = 'rsti-study-v4';
 const PRECACHE_URLS = [
   './',
   './index.html',

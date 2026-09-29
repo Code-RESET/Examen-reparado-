@@ -79,10 +79,10 @@ function showAnswer(q, letter) {
   });
   $('eaScoreLabel').textContent = `✔ ${s.score.correct}   ✘ ${s.score.wrong}`;
   $('eaFeedback').innerHTML = `<div class="feedback-box ${chosen.isCorrect ? 'ok' : 'bad'}">
-    ${chosen.isCorrect ? '✅ ¡Correcto!' : '❌ Incorrecto.'} La respuesta correcta es <b>${correctOpt.letter}) ${escapeHtml(correctOpt.text)}</b>.
+    <b>${chosen.isCorrect ? 'Correcto.' : 'Incorrecto.'}</b> La respuesta correcta es <b>${correctOpt.letter}) ${escapeHtml(correctOpt.text)}</b>.
   </div>`;
   $('eaNextBtn').hidden = false;
-  $('eaNextBtn').textContent = s.index < s.order.length - 1 ? 'Siguiente pregunta →' : 'Ver resultados 🏁';
+  $('eaNextBtn').textContent = s.index < s.order.length - 1 ? 'Siguiente pregunta →' : 'Ver resultados';
 }
 
 function eaNext() {
@@ -116,7 +116,7 @@ function enterResults() {
     return `<div class="content-card">
       <p><b>${escapeHtml(src.q)}</b></p>
       <p style="color:var(--danger);">Tu respuesta: ${escapeHtml(w.chosen)}</p>
-      <p style="color:var(--accent);">Correcta: ${escapeHtml(src.correctText)}</p>
+      <p style="color:var(--success);">Correcta: ${escapeHtml(src.correctText)}</p>
     </div>`;
   }, '<p class="muted">¡Ninguna! Respondiste todo correctamente.</p>');
 }

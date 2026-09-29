@@ -26,20 +26,20 @@ function enterModule([id, tab = 'teoria']) {
     <div class="content-card">
       <h3>Flashcards de este ${route.unit.toLowerCase()}</h3>
       <p style="margin-bottom:14px;">Repasa las ${questionsByModule(m.id).length} preguntas de "${escapeHtml(m.title)}" en formato de tarjetas con repetición espaciada.</p>
-      <button class="btn btn-primary" data-action="startFlash" data-id="${m.id}">🗂️ Empezar flashcards</button>
+      <button class="btn btn-primary" data-action="startFlash" data-id="${m.id}">Empezar flashcards</button>
     </div>`;
   else if (tab === 'quiz') el.innerHTML = `
     <div class="content-card">
       <h3>Quiz de este ${route.unit.toLowerCase()}</h3>
       <p style="margin-bottom:14px;">Ponte a prueba con preguntas de opción múltiple de "${escapeHtml(m.title)}", con retroalimentación inmediata.</p>
-      <button class="btn btn-primary" data-action="startQuiz" data-id="${m.id}">⚡ Empezar quiz</button>
+      <button class="btn btn-primary" data-action="startQuiz" data-id="${m.id}">Empezar quiz</button>
     </div>`;
   else el.innerHTML = `
     <div class="content-card">
-      <h3>🗣️ Explícalo tú (Método Feynman)</h3>
+      <h3>Explícalo tú (Método Feynman)</h3>
       <p style="margin-bottom:10px;">Explica "<b>${escapeHtml(m.title)}</b>" con tus propias palabras, como si se lo enseñaras a alguien que no sabe nada del tema. No copies el resumen — entre más simple lo digas, mejor se ve si de verdad lo entiendes.</p>
       <textarea id="feynmanInput" class="field" rows="6" placeholder="Escribe tu explicación aquí..."></textarea>
-      <button class="btn btn-primary" style="margin-top:12px;" data-action="submitFeynman" id="feynmanSubmitBtn">Revisar mi explicación 🤖</button>
+      <button class="btn btn-primary" style="margin-top:12px;" data-action="submitFeynman" id="feynmanSubmitBtn">Revisar mi explicación</button>
       <div id="feynmanFeedback" style="margin-top:14px;"></div>
     </div>`;
 }
@@ -49,8 +49,8 @@ const theoryHtml = (m) => `
   <div class="content-card"><h3>Explicación</h3><p>${m.explicacion}</p></div>
   <div class="content-card"><h3>Resumen</h3><ul>${m.resumen.map((x) => '<li>' + x + '</li>').join('')}</ul></div>
   <div class="content-card"><h3>Puntos clave</h3><ul>${m.puntos_clave.map((x) => '<li>' + x + '</li>').join('')}</ul></div>
-  <div class="content-card"><h3>⚠️ Errores comunes</h3><ul>${m.errores_comunes.map((x) => '<li>' + x + '</li>').join('')}</ul></div>
-  <div class="mnemo-box"><span style="font-size:20px;">🧠</span><div><b>Truco para recordar:</b><br>${m.mnemotecnia}</div></div>`;
+  <div class="content-card"><h3>Errores comunes</h3><ul>${m.errores_comunes.map((x) => '<li>' + x + '</li>').join('')}</ul></div>
+  <div class="mnemo-box"><div><b>Truco para recordar</b><br>${m.mnemotecnia}</div></div>`;
 
 async function submitFeynman() {
   const m = moduleMeta(activeModuleId);
@@ -60,12 +60,12 @@ async function submitFeynman() {
   const fbEl = $('feynmanFeedback');
   const key = getGeminiKey();
   if (!key) {
-    fbEl.innerHTML = `<div class="feedback-box bad">🔑 Configura tu clave API de Google Gemini primero (botón 🔑 arriba).</div>`;
+    fbEl.innerHTML = `<div class="feedback-box bad">Configura tu clave API de Google Gemini primero (botón de la llave, arriba).</div>`;
     openApiKeyModal();
     return;
   }
   btn.disabled = true;
-  btn.textContent = '⏳ Revisando tu explicación...';
+  btn.textContent = 'Revisando tu explicación…';
   fbEl.innerHTML = '';
   const prompt = `Eres un tutor que aplica la Técnica Feynman con ${route.aiFeynmanWho}.
 Tema oficial: "${m.title}"
@@ -82,16 +82,16 @@ Evalúa su explicación como tutor Feynman:
 Responde en español, tono de tutor cercano y directo, máximo 8 líneas totales, sin preámbulo tipo "Claro, aquí está mi evaluación".`;
   const result = await callGemini(prompt, key);
   if (result.ok) {
-    fbEl.innerHTML = `<div class="feedback-box ok">🗣️ <b>Feedback del tutor:</b><br><br>${escapeHtml(result.text).replace(/\n/g, '<br>')}</div>`;
+    fbEl.innerHTML = `<div class="feedback-box ok"><b>Feedback del tutor</b><br><br>${escapeHtml(result.text).replace(/\n/g, '<br>')}</div>`;
     STATE.feynmanCount = (STATE.feynmanCount || 0) + 1;
     saveState();
     unlockAchievement('feynman_first');
     if (STATE.feynmanCount >= 10) unlockAchievement('feynman_pro');
   } else {
-    fbEl.innerHTML = `<div class="feedback-box bad">⚠ Error de API: ${escapeHtml(result.error)}<br><br>Verifica tu clave 🔑 o tu cuota disponible.</div>`;
+    fbEl.innerHTML = `<div class="feedback-box bad">Error de API: ${escapeHtml(result.error)}<br><br>Verifica tu clave o tu cuota disponible.</div>`;
   }
   btn.disabled = false;
-  btn.textContent = 'Revisar mi explicación 🤖';
+  btn.textContent = 'Revisar mi explicación';
 }
 
 registerPage('modulo', { view: 'module', nav: 'home', enter: enterModule });

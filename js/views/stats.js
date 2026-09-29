@@ -14,7 +14,7 @@ function renderStats() {
   $('statAnswered').textContent = STATE.quiz.answered;
   const totalAns = STATE.quiz.correct + STATE.quiz.wrong;
   $('statCorrectPct').textContent = totalAns ? Math.round((STATE.quiz.correct / totalAns) * 100) + '%' : '0%';
-  $('statStreak').textContent = STATE.streak.count + ' días';
+  $('statStreak').textContent = STATE.streak.count + (STATE.streak.count === 1 ? ' día' : ' días');
   const mins = Math.floor(STATE.totalSeconds / 60);
   $('statTime').textContent = mins < 60 ? mins + 'm' : Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm';
   $('statLevel').textContent = 'Nivel ' + levelFromXp(STATE.xp);
@@ -49,7 +49,7 @@ function renderStats() {
     <div class="es-box"><div class="es-num">${hist.length}</div><div class="es-lab">Simulacros hechos</div></div>
     <div class="es-box"><div class="es-num">${Math.max(...hist.map((h) => h.pct))}%</div><div class="es-lab">Mejor puntaje</div></div>
     <div class="es-box"><div class="es-num">${Math.round(hist.reduce((s, h) => s + h.pct, 0) / hist.length)}%</div><div class="es-lab">Promedio</div></div>`
-    : `<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">⏱️</div>Aún no presentas ningún simulacro de examen.</div>`;
+    : `<div class="empty-state" style="grid-column:1/-1;">Aún no presentas ningún simulacro de examen.</div>`;
 
   /* Calibración de confianza */
   const cs = confidenceStats();
@@ -59,8 +59,8 @@ function renderStats() {
       <div class="es-box"><div class="es-num">${cs.wellCalibratedPct}%</div><div class="es-lab">Bien calibrado</div></div>
       <div class="es-box"><div class="es-num" style="color:var(--accent-2);">${cs.underconfidentPct}%</div><div class="es-lab">Sabes más de lo que crees</div></div>
     </div>
-    ${cs.overconfidentPct >= 15 ? `<div class="empty-state" style="text-align:left; padding:12px;"><b style="color:var(--danger);">⚠️ ${cs.overconfidentCount} veces</b> estuviste "seguro" o "totalmente seguro" y fallaste. Eso es más peligroso que no saber — en el examen real marcarías esas con confianza y las perderías. Repasa esas preguntas con calma, no de prisa.</div>` : ''}`
-    : `<div class="empty-state"><div class="es-ic">🎯</div>Responde con el nivel de confianza al menos 5 veces en el Quiz para ver tu calibración aquí.</div>`;
+    ${cs.overconfidentPct >= 15 ? `<div class="empty-state" style="text-align:left; padding:12px;"><b style="color:var(--danger);">${cs.overconfidentCount} veces</b> estuviste "seguro" o "totalmente seguro" y fallaste. Eso es más peligroso que no saber — en el examen real marcarías esas con confianza y las perderías. Repasa esas preguntas con calma, no de prisa.</div>` : ''}`
+    : `<div class="empty-state">Responde con el nivel de confianza al menos 5 veces en el Quiz para ver tu calibración aquí.</div>`;
 
   /* Módulo más fuerte / más débil (solo entre los que ya practicaste) */
   const withData = modPcts.filter((x) => seenCount(questionsByModule(x.m.id)) > 0);
@@ -68,10 +68,10 @@ function renderStats() {
     const strongest = withData.reduce((a, b) => (b.pct > a.pct ? b : a));
     const weakest = withData.reduce((a, b) => (b.pct < a.pct ? b : a));
     $('statModuleExtremes').innerHTML = `
-      <div class="ex-box"><div class="ex-ic">💪</div><div class="ex-title">${strongest.m.icon} ${escapeHtml(strongest.m.title)}</div><div class="ex-pct">${strongest.pct}% dominado</div></div>
-      <div class="ex-box"><div class="ex-ic">🎯</div><div class="ex-title">${weakest.m.icon} ${escapeHtml(weakest.m.title)}</div><div class="ex-pct">${weakest.pct}% dominado — repasa aquí</div></div>`;
+      <div class="ex-box"><div class="ex-ic">Más fuerte</div><div class="ex-title">${strongest.m.icon} ${escapeHtml(strongest.m.title)}</div><div class="ex-pct">${strongest.pct}% dominado</div></div>
+      <div class="ex-box"><div class="ex-ic">Más débil</div><div class="ex-title">${weakest.m.icon} ${escapeHtml(weakest.m.title)}</div><div class="ex-pct">${weakest.pct}% dominado — repasa aquí</div></div>`;
   } else {
-    $('statModuleExtremes').innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">📊</div>Responde algunas preguntas para ver tus ${route.unitPlural} fuerte/débil.</div>`;
+    $('statModuleExtremes').innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Responde algunas preguntas para ver tus ${route.unitPlural} fuerte/débil.</div>`;
   }
 
   $('achGrid').innerHTML = achievements().map((a) => `

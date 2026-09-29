@@ -70,8 +70,8 @@ function rate(rating) {
 function next() {
   if (index < deck.length - 1) { index++; render(); return; }
   showToast(xpEarned
-    ? `🎉 Terminaste esta sesión de flashcards (+${xpEarned} XP)`
-    : '🎉 Terminaste esta sesión de flashcards');
+    ? `Terminaste esta sesión de flashcards (+${xpEarned} XP)`
+    : 'Terminaste esta sesión de flashcards');
   go('inicio');
 }
 

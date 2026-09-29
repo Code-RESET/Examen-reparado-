@@ -5,16 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>RSTI Study Auditado — Primera Categoría IMSS</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0A0E17">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="RSTI Study">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+<!-- Íconos de línea (estilo SF Symbols), se usan con <svg><use href="#i-..."/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5M19 6l-1.5 1.5"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-9"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4.5"/><path d="m11.5 11.5 8.5-8.5M17 6l2.5 2.5M14.5 8.5 16.5 10.5"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.5z"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 4 7 20M17 4l-2 16M4.5 9h16M3.5 15h16"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
+  </defs>
+</svg>
 <!--
   Estructura: cada <div class="view" id="view-XXX"> es una "página".
   El router (js/router.js) muestra una a la vez según la URL (#/inicio, #/quiz, ...).
@@ -30,7 +45,7 @@
   </div>
   <div class="streak-chip" id="streakChip">🔥 0</div>
   <div class="xp-chip"><span class="lvl" id="lvlChip">1</span><span id="xpChip">0 XP</span></div>
-  <button class="top-btn" data-action="openApiKey" title="Configurar clave API para el tutor IA" aria-label="Configurar clave API para el tutor IA">🔑</button>
+  <button class="top-btn" data-action="openApiKey" title="Configurar clave API para el tutor IA" aria-label="Configurar clave API para el tutor IA"><svg width="17" height="17"><use href="#i-key"/></svg></button>
   <button class="top-btn install" id="installBtn" data-action="install" hidden>⬇ Instalar</button>
 </div>
 
@@ -38,8 +53,8 @@
   <!-- ===================== INICIO ===================== -->
   <div class="view" id="view-home">
     <div class="route-switch" role="tablist" aria-label="Ruta de estudio">
-      <button class="route-btn" role="tab" data-action="switchRoute" data-route="rsti">📋 Examen RSTI</button>
-      <button class="route-btn" role="tab" data-action="switchRoute" data-route="dev">💻 Ruta Dev</button>
+      <button class="route-btn" role="tab" data-action="switchRoute" data-route="rsti">Examen RSTI</button>
+      <button class="route-btn" role="tab" data-action="switchRoute" data-route="dev">Ruta Dev</button>
     </div>
     <div class="hero-progress">
       <div class="ring">
@@ -60,7 +75,7 @@
     <div id="resumeCards"></div>
     <div class="quick-actions" id="quickActions"></div>
     <button class="content-card card-btn" id="aplicarCard" data-action="go" data-to="aplicar">
-      <h3>📋 Examen a Aplicar</h3>
+      <h3>Examen a Aplicar</h3>
       <p>Ficha independiente con las <span id="aplicarCount">63</span> preguntas oficiales y su matriz de respuestas real. El orden de las opciones se mezcla cada vez que lo presentas.</p>
     </button>
     <div class="section-label" id="modulesLabel">Módulos</div>
@@ -74,7 +89,7 @@
       <div><div class="vh-title">Buscar</div><div class="vh-sub" id="searchSub"></div></div>
     </div>
     <div class="search-wrap">
-      <span class="s-ic">🔍</span>
+      <span class="s-ic"><svg width="16" height="16"><use href="#i-search"/></svg></span>
       <input type="text" id="searchInput" aria-label="Buscar en el banco de preguntas">
     </div>
     <div class="search-results" id="searchResults"></div>
@@ -87,10 +102,10 @@
       <div><div class="vh-title" id="modTitle">Módulo</div><div class="vh-sub" id="modSub"></div></div>
     </div>
     <div class="tab-row" id="modTabs">
-      <button class="tab-btn" data-action="modTab" data-tab="teoria">📖 Teoría</button>
-      <button class="tab-btn" data-action="modTab" data-tab="flash">🗂️ Flashcards</button>
-      <button class="tab-btn" data-action="modTab" data-tab="quiz">⚡ Quiz</button>
-      <button class="tab-btn" data-action="modTab" data-tab="feynman">🗣️ Feynman</button>
+      <button class="tab-btn" data-action="modTab" data-tab="teoria">Teoría</button>
+      <button class="tab-btn" data-action="modTab" data-tab="flash">Flashcards</button>
+      <button class="tab-btn" data-action="modTab" data-tab="quiz">Quiz</button>
+      <button class="tab-btn" data-action="modTab" data-tab="feynman">Feynman</button>
     </div>
     <div id="modContent"></div>
   </div>
@@ -110,16 +125,16 @@
           <div class="fc-hint">Toca para ver la respuesta</div>
         </div>
         <div class="fc-face fc-back">
-          <div class="fc-tag">✅ RESPUESTA CORRECTA</div>
+          <div class="fc-tag">Respuesta correcta</div>
           <div class="fc-answer" id="fcAnswer"></div>
           <div class="fc-note" id="fcNote"></div>
         </div>
       </div>
     </div>
     <div class="fc-rate-row" id="fcRateRow" hidden>
-      <button class="rate-btn rate-hard" data-action="rateCard" data-rating="0">😵 Difícil</button>
-      <button class="rate-btn rate-good" data-action="rateCard" data-rating="1">🙂 Normal</button>
-      <button class="rate-btn rate-easy" data-action="rateCard" data-rating="2">😎 Fácil</button>
+      <button class="rate-btn rate-hard" data-action="rateCard" data-rating="0">Difícil</button>
+      <button class="rate-btn rate-good" data-action="rateCard" data-rating="1">Normal</button>
+      <button class="rate-btn rate-easy" data-action="rateCard" data-rating="2">Fácil</button>
     </div>
     <div class="fc-rated" id="fcRated" hidden>Ya calificaste esta tarjeta en esta sesión.</div>
     <div class="fc-nav" style="margin-top:14px;">
@@ -171,7 +186,7 @@
       <p style="margin-bottom:14px;" id="examSetupText"></p>
       <div id="examSizeButtons"></div>
     </div>
-    <button class="btn btn-primary" data-action="startExam">🚀 Comenzar examen — <span id="examSizeLabel">20</span> preguntas</button>
+    <button class="btn btn-primary" data-action="startExam">Comenzar examen · <span id="examSizeLabel">20</span> preguntas</button>
   </div>
 
   <!-- ===================== SIMULACRO: EN CURSO ===================== -->
@@ -231,7 +246,7 @@
       <h3>Acerca de este examen</h3>
       <p>Esta ficha es independiente del resto de la app: son las <span class="ea-count"></span> preguntas del examen oficial a aplicar, calificadas con su propia matriz de respuestas oficial. Cada vez que inicias el examen, el orden de las opciones (A, B, C, D) se mezcla al azar en cada pregunta — la respuesta correcta siempre se marca correctamente, solo cambia su posición.</p>
     </div>
-    <button class="btn btn-primary" data-action="startAplicar">🚀 Comenzar examen (<span class="ea-count"></span> preguntas)</button>
+    <button class="btn btn-primary" data-action="startAplicar">Comenzar examen (<span class="ea-count"></span> preguntas)</button>
   </div>
   <div class="view" id="view-aplicarRun">
     <div class="view-header">
@@ -278,12 +293,12 @@
     <h1 class="page-title">Tu progreso</h1>
     <p class="page-sub" id="statsSub">Estadísticas completas de tu estudio.</p>
     <div class="stat-grid">
-      <div class="stat-box"><div class="sb-icon">🎯</div><div class="sb-val" id="statMastered">0</div><div class="sb-lab">Preguntas dominadas</div></div>
-      <div class="stat-box"><div class="sb-icon">📈</div><div class="sb-val" id="statAnswered">0</div><div class="sb-lab">Preguntas respondidas</div></div>
-      <div class="stat-box"><div class="sb-icon">✅</div><div class="sb-val" id="statCorrectPct">0%</div><div class="sb-lab">Precisión global</div></div>
-      <div class="stat-box"><div class="sb-icon">🔥</div><div class="sb-val" id="statStreak">0 días</div><div class="sb-lab">Racha de estudio</div></div>
-      <div class="stat-box"><div class="sb-icon">⏱️</div><div class="sb-val" id="statTime">0m</div><div class="sb-lab">Tiempo estudiado</div></div>
-      <div class="stat-box"><div class="sb-icon">🏆</div><div class="sb-val" id="statLevel">Nivel 1</div><div class="sb-lab" id="statXp">0 XP</div></div>
+      <div class="stat-box"><div class="sb-val" id="statMastered">0</div><div class="sb-lab">Preguntas dominadas</div></div>
+      <div class="stat-box"><div class="sb-val" id="statAnswered">0</div><div class="sb-lab">Preguntas respondidas</div></div>
+      <div class="stat-box"><div class="sb-val" id="statCorrectPct">0%</div><div class="sb-lab">Precisión global</div></div>
+      <div class="stat-box"><div class="sb-val" id="statStreak">0 días</div><div class="sb-lab">Racha de estudio</div></div>
+      <div class="stat-box"><div class="sb-val" id="statTime">0m</div><div class="sb-lab">Tiempo estudiado</div></div>
+      <div class="stat-box"><div class="sb-val" id="statLevel">Nivel 1</div><div class="sb-lab" id="statXp">0 XP</div></div>
     </div>
     <div class="section-label">Actividad — últimos 7 días</div>
     <div id="statWeekChart" class="week-chart"></div>
@@ -301,10 +316,10 @@
 </div>
 
 <div class="bottom-nav">
-  <button class="nav-btn" data-action="go" data-to="inicio" data-nav="home"><span class="nb-ic">🏠</span>Inicio</button>
-  <button class="nav-btn" data-action="go" data-to="buscar" data-nav="search"><span class="nb-ic">🔍</span>Buscar</button>
-  <button class="nav-btn" data-action="go" data-to="examen" data-nav="examSetup"><span class="nb-ic">⏱️</span>Examen</button>
-  <button class="nav-btn" data-action="go" data-to="progreso" data-nav="stats"><span class="nb-ic">📊</span>Progreso</button>
+  <button class="nav-btn" data-action="go" data-to="inicio" data-nav="home"><span class="nb-ic"><svg><use href="#i-home"/></svg></span>Inicio</button>
+  <button class="nav-btn" data-action="go" data-to="buscar" data-nav="search"><span class="nb-ic"><svg><use href="#i-search"/></svg></span>Buscar</button>
+  <button class="nav-btn" data-action="go" data-to="examen" data-nav="examSetup"><span class="nb-ic"><svg><use href="#i-timer"/></svg></span>Examen</button>
+  <button class="nav-btn" data-action="go" data-to="progreso" data-nav="stats"><span class="nb-ic"><svg><use href="#i-chart"/></svg></span>Progreso</button>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -318,7 +333,7 @@
 </div>
 <div class="celebrate-overlay" id="apiKeyOverlay">
   <div class="celebrate-card" style="text-align:left; max-width:360px;">
-    <div class="cc-title" style="text-align:center;">🔑 Tutor IA</div>
+    <div class="cc-title" style="text-align:center;">Tutor IA</div>
     <div class="cc-desc" style="text-align:center;">Para usar "¿Por qué las otras están mal?" y la revisión Feynman necesitas tu propia clave API gratuita de Google Gemini. Se guarda solo en este dispositivo.</div>
     <input type="password" id="apiKeyInput" class="field" aria-label="Clave API de Google Gemini" placeholder="AIza..." style="margin-bottom:12px;">
     <div style="font-size:11.5px; color:var(--text-dim); margin-bottom:14px;">Consíguela GRATIS en <b>aistudio.google.com/apikey</b> — inicia sesión con tu cuenta de Google, sin tarjeta de crédito.</div>

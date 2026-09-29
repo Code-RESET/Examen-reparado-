@@ -21,11 +21,11 @@ function doSearch() {
     <div class="search-item" data-action="toggleSearchItem">
       <div class="si-mod">${q.icon} ${route.id === 'rsti' ? 'M' + q.module + ' · ' : ''}${escapeHtml(q.moduleTitle)}</div>
       <div class="si-q">${highlight(q.q, term)}</div>
-      <div class="si-answer">✅ ${q.correct}) ${highlight(correctOption(q).text, term)}
+      <div class="si-answer">${q.correct}) ${highlight(correctOption(q).text, term)}
         <br><button class="btn btn-outline" data-action="openModule" data-id="${q.module}">Ir a la teoría →</button>
       </div>
     </div>`,
-  `<div class="empty-state"><div class="es-ic">🔍</div>Sin resultados para "${escapeHtml(term)}"</div>`);
+  `<div class="empty-state">Sin resultados para "${escapeHtml(term)}"</div>`);
 }
 
 $('searchInput').addEventListener('input', doSearch);

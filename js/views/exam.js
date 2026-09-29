@@ -82,7 +82,7 @@ function renderQuestion() {
 function selectOption(letter, btn) {
   selected = letter;
   document.querySelectorAll('#examOptions .opt-item').forEach((b) => {
-    b.style.borderColor = b === btn ? 'var(--accent-2)' : 'var(--border)';
+    b.style.borderColor = b === btn ? 'var(--accent)' : 'transparent';
   });
 }
 
@@ -138,14 +138,14 @@ function enterResults() {
   const wrong = items.filter((a) => !a.isCorrect);
 
   $('resScore').textContent = r.pct + '%';
-  $('resScore').style.color = r.pct >= 80 ? 'var(--accent)' : r.pct >= 60 ? 'var(--warning)' : 'var(--danger)';
+  $('resScore').style.color = r.pct >= 80 ? 'var(--success)' : r.pct >= 60 ? 'var(--warning)' : 'var(--danger)';
   $('resMsg').textContent = r.pct >= 80 ? '¡Excelente! Estás listo para el examen real.'
     : r.pct >= 60 ? 'Vas bien, sigue repasando tus áreas débiles.' : 'Necesitas más repaso — no te desanimes, cada intento suma.';
   $('resCorrect').textContent = r.correct;
   $('resWrong').textContent = r.total - r.correct;
   $('resTime').textContent = fmtClock(r.elapsed);
   $('resUnanswered').hidden = !r.unanswered;
-  $('resUnanswered').textContent = `⏰ ${r.unanswered} pregunta(s) sin responder por tiempo — cuentan como incorrectas.`;
+  $('resUnanswered').textContent = `${r.unanswered} pregunta(s) sin responder por tiempo — cuentan como incorrectas.`;
 
   const byModule = {};
   wrong.forEach((a) => { byModule[a.q.module] = (byModule[a.q.module] || 0) + 1; });
@@ -153,7 +153,7 @@ function enterResults() {
   $('resWeakAreas').innerHTML = modIds.length ? modIds.map((mid) => {
     const m = moduleMeta(mid);
     return `<div class="bar-row"><div class="br-label">${m.icon} ${moduleShort(m)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, byModule[mid] * 20)}%; background:linear-gradient(90deg, var(--danger-dim), var(--danger));"></div></div><div class="br-pct">${byModule[mid]} err.</div></div>`;
-  }).join('') : `<p class="muted" style="font-size:13px;">¡Sin errores por ${route.unit.toLowerCase()}! 🎉</p>`;
+  }).join('') : `<p class="muted" style="font-size:13px;">¡Sin errores por ${route.unit.toLowerCase()}!</p>`;
 
   paginate('resWrongList', wrong, (a) => {
     const tip = explainFor(a.q);
@@ -161,18 +161,18 @@ function enterResults() {
       <div class="wq">${formatText(a.q.q)}</div>
       <div class="wu">Tu respuesta: ${escapeHtml(answerLabel(a))}</div>
       <div class="wa">Correcta: ${a.q.correct}) ${formatText(correctOption(a.q).text)}</div>
-      ${tip ? `<div class="wtip">💡 ${escapeHtml(tip)}</div>` : ''}
+      ${tip ? `<div class="wtip">${escapeHtml(tip)}</div>` : ''}
       <div class="btn-row" style="margin-top:8px;">
         <button class="btn btn-outline btn-sm" data-action="openModule" data-id="${a.q.module}">Repasar ${route.id === 'rsti' ? 'Módulo ' + a.q.module : escapeHtml(a.q.moduleTitle)} →</button>
         ${explainButton(a.q.id, a.sel, 'exam')}
       </div>
     </div>`;
-  }, '<div class="empty-state"><div class="es-ic">🎉</div>¡Ninguna pregunta fallada!</div>');
+  }, '<div class="empty-state">¡Ninguna pregunta fallada!</div>');
 
   $('resFullList').hidden = true;
   $('fullReviewBtn').textContent = 'Ver examen completo (todas las preguntas) ▾';
   paginate('resFullList', items, (a, i) => `
-    <div class="weak-item" style="border-left:3px solid ${a.isCorrect ? 'var(--accent)' : 'var(--danger)'};">
+    <div class="weak-item" style="box-shadow:inset 3px 0 0 ${a.isCorrect ? 'var(--success)' : 'var(--danger)'};">
       <div class="wq">${i + 1}. ${formatText(a.q.q)}</div>
       <div class="${a.isCorrect ? 'wa' : 'wu'}">${a.isCorrect ? '✔ Correcta' : '✘'} Tu respuesta: ${escapeHtml(answerLabel(a))}</div>
       ${a.isCorrect ? '' : `<div class="wa">Correcta: ${a.q.correct}) ${formatText(correctOption(a.q).text)}</div>`}

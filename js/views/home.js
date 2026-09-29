@@ -65,18 +65,18 @@ function renderResumeCards() {
   const cards = [];
   const qs = STATE.quizSession;
   if (qs?.ids?.length) {
-    cards.push(resumeCard('quiz', '▶️ Reanudar quiz',
+    cards.push(resumeCard('quiz', 'Reanudar quiz',
       `${quizSessionLabel(qs)} · pregunta ${Math.min(qs.index + 1, qs.ids.length)}/${qs.ids.length} · ✔ ${qs.score.correct} ✘ ${qs.score.wrong}`));
   }
   const es = STATE.examSession;
   if (es) {
     const left = (es.endAt - Date.now()) / 1000;
-    cards.push(resumeCard('examen/curso', '⏱️ Reanudar simulacro',
+    cards.push(resumeCard('examen/curso', 'Reanudar simulacro',
       left > 0 ? `Pregunta ${es.index + 1}/${es.ids.length} · quedan ${fmtClock(left)}` : 'Se acabó el tiempo — toca para ver tu calificación'));
   }
   const as = STATE.aplicarSession;
   if (as && route.examAplicar) {
-    cards.push(resumeCard('aplicar/curso', '📋 Reanudar Examen a Aplicar',
+    cards.push(resumeCard('aplicar/curso', 'Reanudar Examen a Aplicar',
       `Pregunta ${as.index + 1}/${as.order.length} · ✔ ${as.score.correct} ✘ ${as.score.wrong}`));
   }
   $('resumeCards').innerHTML = cards.join('');
@@ -89,14 +89,14 @@ const resumeCard = (to, title, sub) => `
 function renderQuickActions() {
   const weakN = weakQuestions().length;
   const items = [
-    `<button class="qa-btn primary" data-action="startQuiz"><span class="qa-ic">⚡</span>Quiz rápido</button>`,
-    `<button class="qa-btn" data-action="startFlash"><span class="qa-ic">🗂️</span>Flashcards<br>repaso</button>`,
-    `<button class="qa-btn" data-action="go" data-to="examen"><span class="qa-ic">⏱️</span>Modo examen</button>`,
+    `<button class="qa-btn primary" data-action="startQuiz"><span class="qa-ic"><svg><use href="#i-bolt"/></svg></span><span class="qa-label">Quiz rápido<span class="qa-sub">10 preguntas</span></span></button>`,
+    `<button class="qa-btn" data-action="startFlash"><span class="qa-ic"><svg><use href="#i-cards"/></svg></span><span class="qa-label">Flashcards<span class="qa-sub">Repaso espaciado</span></span></button>`,
+    `<button class="qa-btn" data-action="go" data-to="examen"><span class="qa-ic"><svg><use href="#i-timer"/></svg></span><span class="qa-label">Modo examen<span class="qa-sub">Simulacro con tiempo</span></span></button>`,
   ];
   if (route.hardFacts) {
-    items.push(`<button class="qa-btn" data-action="startHardFacts"><span class="qa-ic">🔢</span>Datos duros<br><span class="qa-sub">${hardFactQuestions().length} detectados</span></button>`);
+    items.push(`<button class="qa-btn" data-action="startHardFacts"><span class="qa-ic"><svg><use href="#i-hash"/></svg></span><span class="qa-label">Datos duros<span class="qa-sub">${hardFactQuestions().length} detectados</span></span></button>`);
   }
-  items.push(`<button class="qa-btn" data-action="startWeak"><span class="qa-ic">🎯</span>Puntos débiles<br><span class="qa-sub">${weakN ? weakN + ' por repasar' : 'ninguno aún'}</span></button>`);
+  items.push(`<button class="qa-btn" data-action="startWeak"><span class="qa-ic"><svg><use href="#i-target"/></svg></span><span class="qa-label">Puntos débiles<span class="qa-sub">${weakN ? weakN + ' por repasar' : 'ninguno aún'}</span></span></button>`);
   if (items.length % 2) items[items.length - 1] = items[items.length - 1].replace('class="qa-btn"', 'class="qa-btn wide"');
   $('quickActions').innerHTML = items.join('');
 }
@@ -111,6 +111,6 @@ registerActions({
     touchStreak();
     renderTopbar();
     renderHome();
-    showToast(`${id === 'dev' ? '💻' : '📋'} ${route.label} activa — tu progreso se guarda por separado`);
+    showToast(`${route.label} · tu progreso se guarda por separado`);
   },
 });
