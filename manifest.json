@@ -1,13 +1,13 @@
 {
   "name": "RSTI Study — Primera Categoría IMSS",
   "short_name": "RSTI Study",
-  "description": "App de estudio auditada para el examen RSTI Primera Categoría IMSS. 322 preguntas, quiz, examen cronometrado, estadísticas.",
+  "description": "App de estudio: examen RSTI Primera Categoría IMSS y Ruta Dev (JavaScript, Firebase, Git, Backend). Quiz, flashcards, simulacro cronometrado y estadísticas.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0A0E17",
-  "theme_color": "#0A0E17",
+  "background_color": "#F2F2F7",
+  "theme_color": "#F2F2F7",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
