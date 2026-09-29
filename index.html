@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>RSTI Study Auditado — Primera Categoría IMSS</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0A0E17">
@@ -12,421 +12,35 @@
 <meta name="apple-mobile-web-app-title" content="RSTI Study">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<style>
-:root{
-  --bg:#0A0E17;
-  --bg-elev:#121828;
-  --bg-elev-2:#1A2238;
-  --bg-elev-3:#212B48;
-  --border:#2A3350;
-  --border-soft:#1D2540;
-  --text:#E8ECF7;
-  --text-dim:#8D96B3;
-  --text-faint:#7C87AC;
-  --accent:#17E9C0;
-  --accent-dim:#0F8F76;
-  --accent-2:#6C8CFF;
-  --danger:#FF5C7A;
-  --danger-dim:#7A2F3E;
-  --warning:#FFB020;
-  --radius:16px;
-  --radius-sm:10px;
-  --font-display: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-body: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-}
-*{box-sizing:border-box; margin:0; padding:0;}
-body{
-  background:
-    radial-gradient(circle at 15% 0%, rgba(23,233,192,0.08), transparent 40%),
-    radial-gradient(circle at 90% 10%, rgba(108,140,255,0.07), transparent 45%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 48px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 48px),
-    var(--bg);
-  color:var(--text);
-  font-family:var(--font-body);
-  -webkit-font-smoothing:antialiased;
-  min-height:100vh;
-  padding-bottom:calc(100px + var(--safe-bottom));
-  overflow-x:hidden;
-}
-::selection{background:var(--accent); color:#04120E;}
-button{font-family:inherit; cursor:pointer;}
-a{color:inherit;}
-
-/* ---------- Top bar ---------- */
-.topbar{
-  position:sticky; top:0; z-index:40;
-  display:flex; align-items:center; gap:12px;
-  padding:16px 18px 14px;
-  background:linear-gradient(180deg, rgba(10,14,23,0.97), rgba(10,14,23,0.86));
-  -webkit-backdrop-filter:blur(10px);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--border-soft);
-}
-.topbar .brand{display:flex; align-items:center; gap:10px; flex:1; min-width:0;}
-.brand-mark{
-  width:38px; height:38px; border-radius:11px;
-  background:conic-gradient(from 220deg, var(--accent), var(--accent-2), var(--accent));
-  display:flex; align-items:center; justify-content:center;
-  font-weight:800; font-size:15px; color:#04120E; flex:none;
-  box-shadow:0 0 0 1px rgba(255,255,255,0.06), 0 6px 18px -6px rgba(23,233,192,0.5);
-}
-.brand-text{min-width:0;}
-.brand-text .t1{font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:0.2px; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-.brand-text .t2{font-size:11px; color:var(--text-dim); letter-spacing:0.3px;}
-.xp-chip{
-  display:flex; align-items:center; gap:6px;
-  background:var(--bg-elev-2); border:1px solid var(--border);
-  padding:6px 10px 6px 8px; border-radius:999px; flex:none;
-  font-family:var(--font-mono); font-size:12px; font-weight:600;
-}
-.xp-chip .lvl{
-  width:20px; height:20px; border-radius:50%; background:var(--warning); color:#241800;
-  display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800;
-}
-.streak-chip{
-  display:flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px;
-  color:var(--warning); font-weight:700; flex:none;
-}
-
-/* ---------- App shell / views ---------- */
-.app{max-width:640px; margin:0 auto; padding:18px; padding-bottom:40px;}
-.view{display:none; animation:fadeUp .35s ease both;}
-.view.active{display:block;}
-@keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
-
-h1.page-title{font-family:var(--font-display); font-size:22px; font-weight:800; letter-spacing:0.2px; margin-bottom:4px;}
-p.page-sub{color:var(--text-dim); font-size:13.5px; margin-bottom:18px; line-height:1.5;}
-
-/* ---------- Overall progress hero ---------- */
-.hero-progress{
-  display:flex; align-items:center; gap:18px;
-  background:linear-gradient(135deg, var(--bg-elev), var(--bg-elev-2));
-  border:1px solid var(--border); border-radius:var(--radius);
-  padding:18px; margin-bottom:20px; position:relative; overflow:hidden;
-}
-.hero-progress::after{
-  content:""; position:absolute; inset:0;
-  background:radial-gradient(circle at 100% 0%, rgba(23,233,192,0.14), transparent 55%);
-  pointer-events:none;
-}
-.ring{position:relative; width:82px; height:82px; flex:none;}
-.ring svg{transform:rotate(-90deg); width:100%; height:100%;}
-.ring circle{fill:none; stroke-width:8;}
-.ring .bg-c{stroke:var(--bg-elev-3);}
-.ring .fg-c{stroke:var(--accent); stroke-linecap:round; transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1);}
-.ring .pct{
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-mono); font-weight:800; font-size:16px;
-}
-.hero-stats{flex:1; z-index:1;}
-.hero-stats .h-title{font-weight:800; font-family:var(--font-display); font-size:15.5px; margin-bottom:6px;}
-.hero-stats .h-row{display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--text-dim); font-family:var(--font-mono);}
-.hero-stats .h-row b{color:var(--text); font-weight:700;}
-
-/* ---------- Module grid (signature circuit nodes) ---------- */
-.module-grid{
-  display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
-  position:relative;
-}
-.module-card{
-  background:var(--bg-elev); border:1px solid var(--border); border-radius:var(--radius);
-  padding:14px; text-align:left; color:var(--text);
-  display:flex; flex-direction:column; gap:8px; position:relative; overflow:hidden;
-  transition:transform .18s ease, border-color .18s ease, background .18s ease;
-}
-.module-card:active{transform:scale(0.97);}
-.module-card:hover{border-color:var(--accent-dim); background:var(--bg-elev-2);}
-.module-card .mc-top{display:flex; align-items:center; justify-content:space-between;}
-.mc-ring{position:relative; width:40px; height:40px; flex:none;}
-.mc-ring svg{transform:rotate(-90deg); width:100%; height:100%;}
-.mc-ring circle{fill:none; stroke-width:4;}
-.mc-ring .bg-c{stroke:var(--bg-elev-3);}
-.mc-ring .fg-c{stroke:var(--accent); stroke-linecap:round; transition:stroke-dashoffset .8s ease;}
-.mc-icon{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:16px;}
-.mc-num{font-family:var(--font-mono); font-size:10px; color:var(--text-faint); font-weight:700;}
-.mc-title{font-size:13px; font-weight:700; line-height:1.3; font-family:var(--font-display);}
-.mc-meta{font-size:10.5px; color:var(--text-dim); font-family:var(--font-mono);}
-.mc-done-badge{
-  position:absolute; top:8px; right:8px; background:var(--accent); color:#04120E;
-  width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  font-size:11px; font-weight:900;
-}
-
-/* ---------- Quick actions row ---------- */
-.quick-actions{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:20px 0;}
-.qa-btn{
-  background:var(--bg-elev); border:1px solid var(--border); border-radius:var(--radius-sm);
-  padding:14px 8px; display:flex; flex-direction:column; align-items:center; gap:6px;
-  color:var(--text); font-size:11.5px; font-weight:700; text-align:center;
-  transition:transform .15s ease, border-color .15s ease;
-}
-.qa-btn:active{transform:scale(0.95);}
-.qa-btn .qa-ic{font-size:20px;}
-.qa-btn.primary{background:linear-gradient(135deg, var(--accent-dim), var(--accent)); color:#04120E; border-color:transparent;}
-
-.section-label{
-  font-family:var(--font-mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
-  color:var(--text-faint); margin:22px 0 10px; display:flex; align-items:center; gap:8px;
-}
-.section-label::after{content:""; flex:1; height:1px; background:var(--border-soft);}
-
-/* ---------- Search ---------- */
-.search-wrap{position:relative; margin-bottom:16px;}
-.search-wrap input{
-  width:100%; background:var(--bg-elev); border:1px solid var(--border); color:var(--text);
-  padding:12px 14px 12px 40px; border-radius:12px; font-size:14px; outline:none;
-  transition:border-color .15s ease;
-}
-.search-wrap input:focus{border-color:var(--accent);}
-.search-wrap .s-ic{position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--text-faint);}
-.search-results{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
-.search-item{
-  background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:12px; padding:12px;
-  font-size:13px; cursor:pointer; transition:border-color .15s;
-}
-.search-item:hover{border-color:var(--accent-dim);}
-.search-item .si-mod{font-family:var(--font-mono); font-size:10px; color:var(--accent); margin-bottom:4px;}
-.search-item .si-q{color:var(--text); line-height:1.4;}
-mark{background:rgba(23,233,192,0.28); color:var(--text); border-radius:3px; padding:0 2px;}
-
-/* ---------- Buttons ---------- */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  padding:14px 18px; border-radius:14px; border:1px solid var(--border);
-  background:var(--bg-elev-2); color:var(--text); font-weight:700; font-size:14.5px;
-  transition:transform .15s ease, background .15s ease, border-color .15s ease;
-  width:100%;
-}
-.btn:active{transform:scale(0.97);}
-.btn-primary{background:linear-gradient(135deg, var(--accent-dim), var(--accent)); color:#04120E; border-color:transparent;}
-.btn-outline{background:transparent;}
-.btn-row{display:flex; gap:10px;}
-.btn[disabled]{opacity:0.4; pointer-events:none;}
-
-/* ---------- Back header ---------- */
-.view-header{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
-.back-btn{
-  width:38px; height:38px; border-radius:11px; background:var(--bg-elev); border:1px solid var(--border);
-  display:flex; align-items:center; justify-content:center; color:var(--text); flex:none; font-size:16px;
-}
-.view-header .vh-title{font-family:var(--font-display); font-weight:800; font-size:17px;}
-.view-header .vh-sub{font-size:11.5px; color:var(--text-dim); font-family:var(--font-mono);}
-
-/* ---------- Module detail ---------- */
-.tab-row{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-bottom:16px; scrollbar-width:none;}
-.tab-row::-webkit-scrollbar{display:none;}
-.tab-btn{
-  flex:none; padding:9px 14px; border-radius:999px; background:var(--bg-elev); border:1px solid var(--border);
-  font-size:12.5px; font-weight:700; color:var(--text-dim); white-space:nowrap;
-}
-.tab-btn.active{background:var(--accent); color:#04120E; border-color:transparent;}
-.content-card{
-  background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:var(--radius);
-  padding:16px; margin-bottom:12px; line-height:1.6; font-size:14px;
-}
-.content-card h3{font-size:12.5px; text-transform:uppercase; letter-spacing:0.8px; color:var(--accent); margin-bottom:10px; font-family:var(--font-mono);}
-.content-card ul{padding-left:18px; display:flex; flex-direction:column; gap:8px;}
-.content-card p{color:var(--text-dim);}
-.mnemo-box{
-  background:linear-gradient(135deg, rgba(255,176,32,0.12), rgba(255,176,32,0.03));
-  border:1px solid rgba(255,176,32,0.35); border-radius:14px; padding:14px; font-size:13.5px;
-  display:flex; gap:10px; align-items:flex-start;
-}
-
-/* ---------- Flashcards ---------- */
-.fc-progress-bar{height:6px; background:var(--bg-elev-2); border-radius:4px; overflow:hidden; margin-bottom:18px;}
-.fc-progress-bar .fill{height:100%; background:linear-gradient(90deg, var(--accent-2), var(--accent)); transition:width .4s ease;}
-.flashcard-stage{perspective:1400px; margin-bottom:18px;}
-.flashcard{
-  position:relative; width:100%; min-height:280px; border-radius:22px;
-  transform-style:preserve-3d; transition:transform .55s cubic-bezier(.4,.2,.2,1);
-  cursor:pointer;
-}
-.flashcard.flipped{transform:rotateY(180deg);}
-.fc-face{
-  position:absolute; inset:0; backface-visibility:hidden; border-radius:22px;
-  padding:26px 22px; display:flex; flex-direction:column;
-  border:1px solid var(--border);
-}
-.fc-front{
-  background:linear-gradient(160deg, var(--bg-elev-2), var(--bg-elev));
-  justify-content:center; align-items:center; text-align:center; gap:14px;
-}
-.fc-front .fc-tag{font-family:var(--font-mono); font-size:10.5px; color:var(--accent); letter-spacing:1px;}
-.fc-front .fc-q{font-size:17px; font-weight:700; line-height:1.45; font-family:var(--font-display);}
-.fc-front .fc-hint{font-size:11.5px; color:var(--text-faint); margin-top:auto;}
-.fc-back{
-  background:linear-gradient(160deg, #0F2B25, var(--bg-elev));
-  transform:rotateY(180deg); justify-content:center; gap:12px;
-}
-.fc-back .fc-tag{font-family:var(--font-mono); font-size:10.5px; color:var(--accent);}
-.fc-back .fc-answer{font-size:16.5px; font-weight:700; line-height:1.4;}
-.fc-back .fc-note{font-size:12.5px; color:var(--text-dim); line-height:1.5;}
-.fc-nav{display:flex; gap:10px;}
-.fc-rate-row{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:6px;}
-.rate-btn{padding:12px 6px; border-radius:12px; border:1px solid var(--border); font-weight:700; font-size:12.5px; text-align:center;}
-.rate-hard{background:rgba(255,92,122,0.12); border-color:var(--danger-dim); color:var(--danger);}
-.rate-good{background:rgba(255,176,32,0.1); border-color:rgba(255,176,32,0.4); color:var(--warning);}
-.rate-easy{background:rgba(23,233,192,0.12); border-color:var(--accent-dim); color:var(--accent);}
-
-/* ---------- Quiz ---------- */
-.quiz-meta{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; font-family:var(--font-mono); font-size:12px; color:var(--text-dim);}
-.quiz-meta .timer{color:var(--warning); font-weight:800;}
-.quiz-q-card{
-  background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:18px; padding:20px; margin-bottom:16px;
-}
-.quiz-q-card .q-tag{font-family:var(--font-mono); font-size:10.5px; color:var(--accent-2); margin-bottom:8px;}
-.quiz-q-card .q-text{font-size:16px; font-weight:700; line-height:1.45;}
-.opt-list{display:flex; flex-direction:column; gap:10px;}
-.opt-item{
-  display:flex; gap:12px; align-items:flex-start; text-align:left;
-  background:var(--bg-elev); border:1px solid var(--border); border-radius:14px; padding:13px 14px;
-  font-size:14px; line-height:1.4; color:var(--text); transition:all .15s ease;
-}
-.opt-item .opt-letter{
-  flex:none; width:26px; height:26px; border-radius:8px; background:var(--bg-elev-3);
-  display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:800; font-size:12px;
-}
-.opt-item.correct{border-color:var(--accent); background:rgba(23,233,192,0.1);}
-.opt-item.correct .opt-letter{background:var(--accent); color:#04120E;}
-.opt-item.wrong{border-color:var(--danger); background:rgba(255,92,122,0.1);}
-.opt-item.wrong .opt-letter{background:var(--danger); color:#fff;}
-.opt-item.disabled{pointer-events:none;}
-.feedback-box{
-  margin-top:14px; padding:14px; border-radius:14px; font-size:13.5px; line-height:1.5;
-  animation:fadeUp .3s ease both;
-}
-.feedback-box.ok{background:rgba(23,233,192,0.1); border:1px solid var(--accent-dim); color:var(--text);}
-.feedback-box.bad{background:rgba(255,92,122,0.1); border:1px solid var(--danger-dim); color:var(--text);}
-
-/* ---------- Results ---------- */
-.result-hero{text-align:center; padding:26px 16px; background:linear-gradient(160deg, var(--bg-elev-2), var(--bg-elev)); border-radius:20px; border:1px solid var(--border); margin-bottom:18px;}
-.result-hero .r-score{font-family:var(--font-display); font-size:46px; font-weight:900; margin:8px 0;}
-.result-hero .r-label{color:var(--text-dim); font-size:13px;}
-.result-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px;}
-.result-stat{background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:14px; padding:12px; text-align:center;}
-.result-stat .rs-num{font-family:var(--font-mono); font-weight:800; font-size:18px;}
-.result-stat .rs-lab{font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.4px;}
-.weak-item{background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:12px; padding:12px; margin-bottom:8px; font-size:13px;}
-.weak-item .wq{font-weight:700; margin-bottom:4px;}
-.weak-item .wa{color:var(--accent); font-size:12.5px;}
-.weak-item .wu{color:var(--danger); font-size:12.5px;}
-.weak-item .wtip{color:var(--text-dim); font-size:12px; margin-top:6px; padding-top:6px; border-top:1px dashed var(--border-soft); line-height:1.4;}
-.live-explain{display:none; margin-top:8px; padding:10px; background:var(--bg-elev-2); border:1px solid var(--border-soft); border-radius:10px; font-size:12.5px; line-height:1.5; color:var(--text);}
-.live-explain.show{display:block;}
-.confidence-box{margin-top:14px; padding:14px; background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:14px; text-align:center;}
-.confidence-box .conf-label{font-size:13px; color:var(--text-dim); margin-bottom:10px;}
-.confidence-box .conf-row{display:grid; grid-template-columns:repeat(5,1fr); gap:6px;}
-.conf-btn{background:var(--bg-elev-2); border:1px solid var(--border); border-radius:10px; padding:8px 2px; font-size:10.5px; color:var(--text); line-height:1.5;}
-.conf-btn:active{transform:scale(0.94); border-color:var(--accent-2);}
-.week-chart{display:flex; align-items:flex-end; gap:8px; height:110px; padding:12px; background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:12px; margin-bottom:6px;}
-.week-chart .wc-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
-.week-chart .wc-bar{width:100%; max-width:26px; border-radius:6px 6px 0 0; background:linear-gradient(180deg, var(--accent-2), var(--accent)); min-height:3px; transition:height .3s;}
-.week-chart .wc-lab{font-size:10px; color:var(--text-faint); margin-top:6px;}
-.week-chart .wc-num{font-size:10px; color:var(--text-dim); margin-bottom:2px;}
-.exam-summary{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:6px;}
-.exam-summary .es-box{background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:12px; padding:10px; text-align:center;}
-.exam-summary .es-num{font-size:18px; font-weight:800; color:var(--accent);}
-.exam-summary .es-lab{font-size:10.5px; color:var(--text-dim); margin-top:2px;}
-.extremes-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:6px;}
-.extremes-grid .ex-box{background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:12px; padding:12px; text-align:center;}
-.extremes-grid .ex-ic{font-size:22px;}
-.extremes-grid .ex-title{font-size:12px; font-weight:700; margin-top:4px;}
-.extremes-grid .ex-pct{font-size:11px; color:var(--text-dim); margin-top:2px;}
-
-/* ---------- Stats view ---------- */
-.stat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:20px;}
-.stat-box{background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:16px; padding:16px;}
-.stat-box .sb-icon{font-size:20px; margin-bottom:8px;}
-.stat-box .sb-val{font-family:var(--font-mono); font-weight:800; font-size:22px;}
-.stat-box .sb-lab{font-size:11px; color:var(--text-dim); margin-top:2px;}
-.bar-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
-.bar-row .br-label{width:96px; flex:none; font-size:11.5px; color:var(--text-dim); font-family:var(--font-mono);}
-.bar-track{flex:1; height:10px; background:var(--bg-elev-2); border-radius:6px; overflow:hidden;}
-.bar-fill{height:100%; background:linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius:6px; transition:width .6s ease;}
-.bar-row .br-pct{width:34px; text-align:right; font-family:var(--font-mono); font-size:11px; color:var(--text-dim);}
-
-/* ---------- Achievements ---------- */
-.ach-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
-.ach-item{
-  background:var(--bg-elev); border:1px solid var(--border-soft); border-radius:16px; padding:14px 8px;
-  text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; opacity:0.35; filter:grayscale(1);
-}
-.ach-item.unlocked{opacity:1; filter:none; border-color:rgba(255,176,32,0.4); background:linear-gradient(160deg, rgba(255,176,32,0.08), var(--bg-elev));}
-.ach-item .ach-ic{font-size:24px;}
-.ach-item .ach-name{font-size:10.5px; font-weight:700; line-height:1.3;}
-.ach-item .ach-desc{font-size:9px; color:var(--text-dim); line-height:1.3;}
-
-/* ---------- Bottom nav ---------- */
-.bottom-nav{
-  position:fixed; bottom:0; left:0; right:0; z-index:50;
-  display:flex; justify-content:space-around;
-  background:rgba(13,17,28,0.95); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
-  border-top:1px solid var(--border-soft);
-  padding:9px 8px calc(9px + var(--safe-bottom));
-}
-.nav-btn{
-  display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none;
-  color:var(--text-faint); font-size:9.5px; font-weight:700; padding:4px 10px; border-radius:12px;
-  transition:color .15s ease;
-}
-.nav-btn .nb-ic{font-size:19px;}
-.nav-btn.active{color:var(--accent);}
-
-/* ---------- Toast / celebration ---------- */
-.toast{
-  position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-140%);
-  background:var(--bg-elev-3); border:1px solid var(--accent-dim); color:var(--text);
-  padding:12px 18px; border-radius:14px; font-size:13.5px; font-weight:700; z-index:100;
-  transition:transform .4s cubic-bezier(.3,1.4,.4,1); display:flex; align-items:center; gap:8px;
-  box-shadow:0 10px 30px -8px rgba(0,0,0,0.6); max-width:90vw;
-}
-.toast.show{transform:translateX(-50%) translateY(0);}
-
-.celebrate-overlay{
-  position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center;
-  background:rgba(6,9,16,0.82); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
-}
-.celebrate-overlay.show{display:flex; animation:fadeUp .3s ease both;}
-.celebrate-card{
-  background:linear-gradient(160deg, var(--bg-elev-2), var(--bg-elev)); border:1px solid var(--accent-dim);
-  border-radius:24px; padding:32px 26px; text-align:center; max-width:320px;
-}
-.celebrate-card .cc-emoji{font-size:52px; margin-bottom:12px;}
-.celebrate-card .cc-title{font-family:var(--font-display); font-weight:800; font-size:19px; margin-bottom:8px;}
-.celebrate-card .cc-desc{color:var(--text-dim); font-size:13.5px; margin-bottom:20px; line-height:1.5;}
-
-.empty-state{text-align:center; padding:40px 20px; color:var(--text-dim);}
-.empty-state .es-ic{font-size:40px; margin-bottom:10px;}
-
-@media (min-width:520px){
-  .module-grid{grid-template-columns:repeat(3,1fr);}
-}
-</style>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
+<!--
+  Estructura: cada <div class="view" id="view-XXX"> es una "página".
+  El router (js/router.js) muestra una a la vez según la URL (#/inicio, #/quiz, ...).
+  Los botones usan data-action="nombre"; la lógica vive en js/views/*.js.
+-->
 <div class="topbar">
   <div class="brand">
-    <div class="brand-mark">R</div>
+    <div class="brand-mark" id="brandMark">R</div>
     <div class="brand-text">
-      <div class="t1">RSTI Study</div>
-      <div class="t2">Primera Categoría · IMSS</div>
+      <div class="t1" id="brandTitle">RSTI Study</div>
+      <div class="t2" id="brandSub">Primera Categoría · IMSS</div>
     </div>
   </div>
   <div class="streak-chip" id="streakChip">🔥 0</div>
   <div class="xp-chip"><span class="lvl" id="lvlChip">1</span><span id="xpChip">0 XP</span></div>
-  <button id="apiKeyBtn" onclick="openApiKeyModal()" title="Configurar clave API para el tutor IA" style="margin-left:8px; background:none; border:1px solid var(--border); border-radius:20px; padding:6px 10px; font-size:14px;">🔑</button>
-  <button id="installBtn" onclick="triggerInstall()" style="display:none; margin-left:8px; background:var(--accent); color:#04120E; border:none; border-radius:20px; padding:6px 12px; font-size:12px; font-weight:700; white-space:nowrap;">⬇ Instalar</button>
+  <button class="top-btn" data-action="openApiKey" title="Configurar clave API para el tutor IA" aria-label="Configurar clave API para el tutor IA">🔑</button>
+  <button class="top-btn install" id="installBtn" data-action="install" hidden>⬇ Instalar</button>
 </div>
 
 <div class="app">
-
-  <!-- ===================== HOME ===================== -->
-  <div class="view active" id="view-home">
+  <!-- ===================== INICIO ===================== -->
+  <div class="view" id="view-home">
+    <div class="route-switch" role="tablist" aria-label="Ruta de estudio">
+      <button class="route-btn" role="tab" data-action="switchRoute" data-route="rsti">📋 Examen RSTI</button>
+      <button class="route-btn" role="tab" data-action="switchRoute" data-route="dev">💻 Ruta Dev</button>
+    </div>
     <div class="hero-progress">
       <div class="ring">
         <svg viewBox="0 0 82 82">
@@ -436,84 +50,63 @@ mark{background:rgba(23,233,192,0.28); color:var(--text); border-radius:3px; pad
         <div class="pct" id="heroPct">0%</div>
       </div>
       <div class="hero-stats">
-        <div class="h-title">Dominio general del examen</div>
+        <div class="h-title" id="heroTitle">Dominio general del examen</div>
         <div class="h-row">
-          <span><b id="heroMastered">0</b>/322 dominadas</span>
-          <span><b id="heroModsDone">0</b>/10 módulos</span>
+          <span><b id="heroMastered">0</b>/<span id="heroTotal">0</span> dominadas</span>
+          <span><b id="heroModsDone">0</b>/<span id="heroModsTotal">0</span> <span id="heroUnit">módulos</span></span>
         </div>
       </div>
     </div>
-
-    <button class="content-card" id="resumeQuizCard" style="display:none; width:100%; text-align:left; cursor:pointer; border:1px solid var(--accent); background:var(--bg-elev); color:var(--text); font-family:inherit;" onclick="resumeQuizSession()">
-      <h3>▶️ Reanudar quiz</h3>
-      <p id="resumeQuizSub"></p>
-    </button>
-
-    <div class="quick-actions">
-      <button class="qa-btn primary" onclick="startQuiz()">
-        <span class="qa-ic">⚡</span>Quiz rápido
-      </button>
-      <button class="qa-btn" onclick="startFlashSession()">
-        <span class="qa-ic">🗂️</span>Flashcards<br>repaso
-      </button>
-      <button class="qa-btn" onclick="goto('examSetup')">
-        <span class="qa-ic">⏱️</span>Modo examen
-      </button>
-      <button class="qa-btn" onclick="startHardFactsQuiz()">
-        <span class="qa-ic">🔢</span>Datos duros<br><span style="font-size:10px; color:var(--text-dim); font-weight:400;" id="hardFactsCount"></span>
-      </button>
-    </div>
-
-    <button class="content-card" style="width:100%; text-align:left; cursor:pointer; border:1px solid var(--accent-dim); background:var(--bg-elev); color:var(--text); font-family:inherit;" onclick="goto('examenAplicar')">
+    <div id="resumeCards"></div>
+    <div class="quick-actions" id="quickActions"></div>
+    <button class="content-card card-btn" id="aplicarCard" data-action="go" data-to="aplicar">
       <h3>📋 Examen a Aplicar</h3>
-      <p>Ficha independiente con las 63 preguntas oficiales y su matriz de respuestas real. El orden de las opciones se mezcla cada vez que lo presentas.</p>
+      <p>Ficha independiente con las <span id="aplicarCount">63</span> preguntas oficiales y su matriz de respuestas real. El orden de las opciones se mezcla cada vez que lo presentas.</p>
     </button>
-
-    <div class="section-label">Módulos</div>
+    <div class="section-label" id="modulesLabel">Módulos</div>
     <div class="module-grid" id="moduleGrid"></div>
   </div>
 
-  <!-- ===================== SEARCH ===================== -->
+  <!-- ===================== BUSCAR ===================== -->
   <div class="view" id="view-search">
     <div class="view-header">
-      <button class="back-btn" onclick="goto('home')">←</button>
-      <div><div class="vh-title">Buscar</div><div class="vh-sub">en las 322 preguntas</div></div>
+      <button class="back-btn" data-action="go" data-to="inicio" aria-label="Volver">←</button>
+      <div><div class="vh-title">Buscar</div><div class="vh-sub" id="searchSub"></div></div>
     </div>
     <div class="search-wrap">
       <span class="s-ic">🔍</span>
-      <input type="text" id="searchInput" aria-label="Buscar en el banco de preguntas" placeholder="Ej. contraseña, NEXT, dominio, ePO..." oninput="doSearch()">
+      <input type="text" id="searchInput" aria-label="Buscar en el banco de preguntas">
     </div>
     <div class="search-results" id="searchResults"></div>
   </div>
 
-  <!-- ===================== MODULE DETAIL ===================== -->
+  <!-- ===================== MÓDULO ===================== -->
   <div class="view" id="view-module">
     <div class="view-header">
-      <button class="back-btn" onclick="goto('home')">←</button>
+      <button class="back-btn" data-action="go" data-to="inicio" aria-label="Volver">←</button>
       <div><div class="vh-title" id="modTitle">Módulo</div><div class="vh-sub" id="modSub"></div></div>
     </div>
-    <div class="tab-row">
-      <button class="tab-btn active" data-tab="teoria" onclick="setModTab('teoria')">📖 Teoría</button>
-      <button class="tab-btn" data-tab="flash" onclick="setModTab('flash')">🗂️ Flashcards</button>
-      <button class="tab-btn" data-tab="quiz" onclick="setModTab('quiz')">⚡ Quiz</button>
-      <button class="tab-btn" data-tab="feynman" onclick="setModTab('feynman')">🗣️ Feynman</button>
+    <div class="tab-row" id="modTabs">
+      <button class="tab-btn" data-action="modTab" data-tab="teoria">📖 Teoría</button>
+      <button class="tab-btn" data-action="modTab" data-tab="flash">🗂️ Flashcards</button>
+      <button class="tab-btn" data-action="modTab" data-tab="quiz">⚡ Quiz</button>
+      <button class="tab-btn" data-action="modTab" data-tab="feynman">🗣️ Feynman</button>
     </div>
-    <div id="modTeoria"></div>
-    <div id="modActionArea"></div>
+    <div id="modContent"></div>
   </div>
 
   <!-- ===================== FLASHCARDS ===================== -->
   <div class="view" id="view-flash">
     <div class="view-header">
-      <button class="back-btn" onclick="exitFlash()">←</button>
+      <button class="back-btn" data-action="exitFlash" aria-label="Salir">←</button>
       <div><div class="vh-title">Flashcards</div><div class="vh-sub" id="flashSub"></div></div>
     </div>
     <div class="fc-progress-bar"><div class="fill" id="flashProgFill" style="width:0%"></div></div>
     <div class="flashcard-stage">
-      <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="flashcard" id="flashcard" data-action="flipCard">
         <div class="fc-face fc-front">
-          <div class="fc-tag" id="fcFrontTag">MÓDULO</div>
-          <div class="fc-q" id="fcQuestion">Pregunta...</div>
+          <div class="fc-tag" id="fcFrontTag"></div>
+          <div class="fc-q" id="fcQuestion"></div>
           <div class="fc-hint">Toca para ver la respuesta</div>
         </div>
         <div class="fc-face fc-back">
@@ -523,26 +116,27 @@ mark{background:rgba(23,233,192,0.28); color:var(--text); border-radius:3px; pad
         </div>
       </div>
     </div>
-    <div class="fc-rate-row" id="fcRateRow" style="display:none;">
-      <button class="rate-btn rate-hard" onclick="rateCard(0)">😵 Difícil</button>
-      <button class="rate-btn rate-good" onclick="rateCard(1)">🙂 Normal</button>
-      <button class="rate-btn rate-easy" onclick="rateCard(2)">😎 Fácil</button>
+    <div class="fc-rate-row" id="fcRateRow" hidden>
+      <button class="rate-btn rate-hard" data-action="rateCard" data-rating="0">😵 Difícil</button>
+      <button class="rate-btn rate-good" data-action="rateCard" data-rating="1">🙂 Normal</button>
+      <button class="rate-btn rate-easy" data-action="rateCard" data-rating="2">😎 Fácil</button>
     </div>
+    <div class="fc-rated" id="fcRated" hidden>Ya calificaste esta tarjeta en esta sesión.</div>
     <div class="fc-nav" style="margin-top:14px;">
-      <button class="btn btn-outline" onclick="prevCard()">← Anterior</button>
-      <button class="btn btn-outline" onclick="nextCard()">Siguiente →</button>
+      <button class="btn btn-outline" data-action="prevCard">← Anterior</button>
+      <button class="btn btn-outline" data-action="nextCard">Siguiente →</button>
     </div>
   </div>
 
   <!-- ===================== QUIZ ===================== -->
   <div class="view" id="view-quiz">
     <div class="view-header">
-      <button class="back-btn" onclick="exitQuiz()">←</button>
+      <button class="back-btn" data-action="exitQuiz" aria-label="Salir">←</button>
       <div><div class="vh-title">Quiz</div><div class="vh-sub" id="quizHeaderSub"></div></div>
     </div>
     <div class="quiz-meta">
-      <span id="quizProgressLabel">Pregunta 1/10</span>
-      <span id="quizScoreLabel">✔ 0 &nbsp; ✘ 0</span>
+      <span id="quizProgressLabel"></span>
+      <span id="quizScoreLabel"></span>
     </div>
     <div class="fc-progress-bar"><div class="fill" id="quizProgFill" style="width:0%"></div></div>
     <div class="quiz-q-card">
@@ -550,52 +144,45 @@ mark{background:rgba(23,233,192,0.28); color:var(--text); border-radius:3px; pad
       <div class="q-text" id="quizQuestion"></div>
     </div>
     <div class="opt-list" id="quizOptions"></div>
-    <div id="quizConfidence" class="confidence-box" style="display:none;">
+    <div id="quizConfidence" class="confidence-box" hidden>
       <div class="conf-label">¿Qué tan seguro estabas de tu respuesta?</div>
       <div class="conf-row">
-        <button class="conf-btn" onclick="submitQuizAnswer(1)">😬<br>Adiviné</button>
-        <button class="conf-btn" onclick="submitQuizAnswer(2)">🤔<br>Dudoso</button>
-        <button class="conf-btn" onclick="submitQuizAnswer(3)">🙂<br>Regular</button>
-        <button class="conf-btn" onclick="submitQuizAnswer(4)">😎<br>Seguro</button>
-        <button class="conf-btn" onclick="submitQuizAnswer(5)">💯<br>Totalmente</button>
+        <button class="conf-btn" data-action="confidence" data-level="1">😬<br>Adiviné</button>
+        <button class="conf-btn" data-action="confidence" data-level="2">🤔<br>Dudoso</button>
+        <button class="conf-btn" data-action="confidence" data-level="3">🙂<br>Regular</button>
+        <button class="conf-btn" data-action="confidence" data-level="4">😎<br>Seguro</button>
+        <button class="conf-btn" data-action="confidence" data-level="5">💯<br>Totalmente</button>
       </div>
     </div>
     <div id="quizFeedback"></div>
     <div style="margin-top:16px;">
-      <button class="btn btn-primary" id="quizNextBtn" style="display:none;" onclick="quizNext()">Siguiente pregunta →</button>
+      <button class="btn btn-primary" id="quizNextBtn" data-action="quizNext" hidden>Siguiente pregunta →</button>
     </div>
   </div>
 
-  <!-- ===================== EXAM SETUP ===================== -->
+  <!-- ===================== SIMULACRO: CONFIGURACIÓN ===================== -->
   <div class="view" id="view-examSetup">
     <div class="view-header">
-      <button class="back-btn" onclick="goto('home')">←</button>
+      <button class="back-btn" data-action="go" data-to="inicio" aria-label="Volver">←</button>
       <div><div class="vh-title">Modo Examen</div><div class="vh-sub">simulacro cronometrado</div></div>
     </div>
     <div class="content-card">
       <h3>Configuración</h3>
-      <p style="margin-bottom:14px;">Elige cuántas preguntas quieres en tu simulacro. Se sortean al azar de los 10 módulos y tendrás un cronómetro en cuenta regresiva, igual que en el examen real.</p>
-      <div class="btn-row" style="margin-bottom:10px;">
-        <button class="btn btn-outline" onclick="setExamSize(20)">20 preguntas</button>
-        <button class="btn btn-outline" onclick="setExamSize(40)">40 preguntas</button>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-outline" onclick="setExamSize(63)">63 (Módulo 1 real)</button>
-        <button class="btn btn-outline" onclick="setExamSize(322)">322 (todo)</button>
-      </div>
+      <p style="margin-bottom:14px;" id="examSetupText"></p>
+      <div id="examSizeButtons"></div>
     </div>
-    <button class="btn btn-primary" onclick="startExam()">🚀 Comenzar examen — <span id="examSizeLabel">20</span> preguntas</button>
+    <button class="btn btn-primary" data-action="startExam">🚀 Comenzar examen — <span id="examSizeLabel">20</span> preguntas</button>
   </div>
 
-  <!-- ===================== EXAM RUNNING (reuses quiz styles) ===================== -->
+  <!-- ===================== SIMULACRO: EN CURSO ===================== -->
   <div class="view" id="view-exam">
     <div class="view-header">
-      <button class="back-btn" onclick="abortExam()">✕</button>
+      <button class="back-btn" data-action="abortExam" aria-label="Abandonar examen">✕</button>
       <div><div class="vh-title">Examen en curso</div><div class="vh-sub" id="examHeaderSub"></div></div>
     </div>
     <div class="quiz-meta">
-      <span id="examProgressLabel">Pregunta 1/20</span>
-      <span class="timer" id="examTimer">30:00</span>
+      <span id="examProgressLabel"></span>
+      <span class="timer" id="examTimer">0:00</span>
     </div>
     <div class="fc-progress-bar"><div class="fill" id="examProgFill" style="width:0%"></div></div>
     <div class="quiz-q-card">
@@ -604,56 +191,56 @@ mark{background:rgba(23,233,192,0.28); color:var(--text); border-radius:3px; pad
     </div>
     <div class="opt-list" id="examOptions"></div>
     <div style="margin-top:16px;">
-      <button class="btn btn-primary" id="examNextBtn" onclick="examNext()">Siguiente →</button>
+      <button class="btn btn-primary" id="examNextBtn" data-action="examNext">Siguiente →</button>
     </div>
   </div>
 
-  <!-- ===================== RESULTS ===================== -->
+  <!-- ===================== SIMULACRO: RESULTADOS ===================== -->
   <div class="view" id="view-results">
     <div class="view-header">
-      <button class="back-btn" onclick="goto('home')">←</button>
+      <button class="back-btn" data-action="go" data-to="inicio" aria-label="Volver">←</button>
       <div><div class="vh-title">Resultados</div></div>
     </div>
     <div class="result-hero">
       <div class="r-label">Calificación</div>
       <div class="r-score" id="resScore">0%</div>
-      <div class="r-label" id="resMsg">Sigue practicando</div>
+      <div class="r-label" id="resMsg"></div>
     </div>
     <div class="result-grid">
       <div class="result-stat"><div class="rs-num" id="resCorrect">0</div><div class="rs-lab">Correctas</div></div>
       <div class="result-stat"><div class="rs-num" id="resWrong">0</div><div class="rs-lab">Incorrectas</div></div>
       <div class="result-stat"><div class="rs-num" id="resTime">0:00</div><div class="rs-lab">Tiempo</div></div>
     </div>
+    <p class="muted" id="resUnanswered" style="text-align:center; font-size:12.5px; margin:-8px 0 14px;" hidden></p>
     <div class="section-label">Áreas de mejora</div>
     <div id="resWeakAreas"></div>
     <div class="section-label">Preguntas falladas</div>
     <div id="resWrongList"></div>
-    <button class="btn btn-outline" style="margin-top:8px;" onclick="toggleFullReview()" id="fullReviewBtn">Ver examen completo (todas las preguntas) ▾</button>
-    <div id="resFullList" style="display:none; margin-top:10px;"></div>
-    <button class="btn btn-primary" style="margin-top:16px;" onclick="goto('home')">Volver al inicio</button>
+    <button class="btn btn-outline" style="margin-top:8px;" data-action="toggleFullReview" id="fullReviewBtn">Ver examen completo (todas las preguntas) ▾</button>
+    <div id="resFullList" style="margin-top:10px;" hidden></div>
+    <button class="btn btn-primary" style="margin-top:16px;" data-action="go" data-to="inicio">Volver al inicio</button>
   </div>
 
-  <!-- ===================== EXAMEN A APLICAR (ficha independiente) ===================== -->
-  <div class="view" id="view-examenAplicar">
+  <!-- ===================== EXAMEN A APLICAR (solo ruta RSTI) ===================== -->
+  <div class="view" id="view-aplicar">
     <div class="view-header">
-      <button class="back-btn" onclick="goto('home')">←</button>
-      <div><div class="vh-title">Examen a Aplicar</div><div class="vh-sub">63 preguntas oficiales</div></div>
+      <button class="back-btn" data-action="go" data-to="inicio" aria-label="Volver">←</button>
+      <div><div class="vh-title">Examen a Aplicar</div><div class="vh-sub" id="eaIntroSub"></div></div>
     </div>
     <div class="content-card">
       <h3>Acerca de este examen</h3>
-      <p>Esta ficha es independiente del resto de la app: son las 63 preguntas del examen oficial a aplicar, calificadas con su propia matriz de respuestas oficial. Cada vez que inicias el examen, el orden de las opciones (A, B, C, D) se mezcla al azar en cada pregunta — la respuesta correcta siempre se marca correctamente, solo cambia su posición.</p>
+      <p>Esta ficha es independiente del resto de la app: son las <span class="ea-count"></span> preguntas del examen oficial a aplicar, calificadas con su propia matriz de respuestas oficial. Cada vez que inicias el examen, el orden de las opciones (A, B, C, D) se mezcla al azar en cada pregunta — la respuesta correcta siempre se marca correctamente, solo cambia su posición.</p>
     </div>
-    <button class="btn btn-primary" onclick="startExamenAplicar()">🚀 Comenzar examen (63 preguntas)</button>
+    <button class="btn btn-primary" data-action="startAplicar">🚀 Comenzar examen (<span class="ea-count"></span> preguntas)</button>
   </div>
-
-  <div class="view" id="view-examenAplicarRun">
+  <div class="view" id="view-aplicarRun">
     <div class="view-header">
-      <button class="back-btn" onclick="abortExamenAplicar()">✕</button>
+      <button class="back-btn" data-action="abortAplicar" aria-label="Abandonar examen">✕</button>
       <div><div class="vh-title">Examen a Aplicar</div><div class="vh-sub" id="eaHeaderSub"></div></div>
     </div>
     <div class="quiz-meta">
-      <span id="eaProgressLabel">Pregunta 1/63</span>
-      <span id="eaScoreLabel">✔ 0 &nbsp; ✘ 0</span>
+      <span id="eaProgressLabel"></span>
+      <span id="eaScoreLabel"></span>
     </div>
     <div class="fc-progress-bar"><div class="fill" id="eaProgFill" style="width:0%"></div></div>
     <div class="quiz-q-card">
@@ -662,37 +249,36 @@ mark{background:rgba(23,233,192,0.28); color:var(--text); border-radius:3px; pad
     <div class="opt-list" id="eaOptions"></div>
     <div id="eaFeedback"></div>
     <div style="margin-top:16px;">
-      <button class="btn btn-primary" id="eaNextBtn" style="display:none;" onclick="eaNext()">Siguiente →</button>
+      <button class="btn btn-primary" id="eaNextBtn" data-action="eaNext" hidden>Siguiente →</button>
     </div>
   </div>
-
-  <div class="view" id="view-examenAplicarResults">
+  <div class="view" id="view-aplicarResults">
     <div class="view-header">
-      <button class="back-btn" onclick="goto('home')">←</button>
+      <button class="back-btn" data-action="go" data-to="inicio" aria-label="Volver">←</button>
       <div><div class="vh-title">Resultados — Examen a Aplicar</div></div>
     </div>
     <div class="result-hero">
       <div class="r-label">Calificación</div>
       <div class="r-score" id="eaResScore">0%</div>
-      <div class="r-label" id="eaResMsg">Sigue practicando</div>
+      <div class="r-label" id="eaResMsg"></div>
     </div>
     <div class="result-grid">
       <div class="result-stat"><div class="rs-num" id="eaResCorrect">0</div><div class="rs-lab">Correctas</div></div>
       <div class="result-stat"><div class="rs-num" id="eaResWrong">0</div><div class="rs-lab">Incorrectas</div></div>
-      <div class="result-stat"><div class="rs-num" id="eaResTotal">63</div><div class="rs-lab">Total</div></div>
+      <div class="result-stat"><div class="rs-num" id="eaResTotal">0</div><div class="rs-lab">Total</div></div>
     </div>
     <div class="section-label">Preguntas falladas</div>
     <div id="eaResWrongList"></div>
-    <button class="btn btn-primary" style="margin-top:16px;" onclick="goto('home')">Volver al inicio</button>
-    <button class="btn btn-outline" style="margin-top:8px;" onclick="goto('examenAplicar')">Repetir examen (nuevo orden de respuestas)</button>
+    <button class="btn btn-primary" style="margin-top:16px;" data-action="go" data-to="inicio">Volver al inicio</button>
+    <button class="btn btn-outline" style="margin-top:8px;" data-action="go" data-to="aplicar">Repetir examen (nuevo orden de respuestas)</button>
   </div>
 
-  <!-- ===================== STATS ===================== -->
+  <!-- ===================== PROGRESO ===================== -->
   <div class="view" id="view-stats">
     <h1 class="page-title">Tu progreso</h1>
-    <p class="page-sub">Estadísticas completas de tu estudio.</p>
+    <p class="page-sub" id="statsSub">Estadísticas completas de tu estudio.</p>
     <div class="stat-grid">
-      <div class="stat-box"><div class="sb-icon">🎯</div><div class="sb-val" id="statMastered">0/322</div><div class="sb-lab">Preguntas dominadas</div></div>
+      <div class="stat-box"><div class="sb-icon">🎯</div><div class="sb-val" id="statMastered">0</div><div class="sb-lab">Preguntas dominadas</div></div>
       <div class="stat-box"><div class="sb-icon">📈</div><div class="sb-val" id="statAnswered">0</div><div class="sb-lab">Preguntas respondidas</div></div>
       <div class="stat-box"><div class="sb-icon">✅</div><div class="sb-val" id="statCorrectPct">0%</div><div class="sb-lab">Precisión global</div></div>
       <div class="stat-box"><div class="sb-icon">🔥</div><div class="sb-val" id="statStreak">0 días</div><div class="sb-lab">Racha de estudio</div></div>
@@ -705,1300 +291,44 @@ mark{background:rgba(23,233,192,0.28); color:var(--text); border-radius:3px; pad
     <div id="statExamSummary" class="exam-summary"></div>
     <div class="section-label">Calibración de confianza</div>
     <div id="statConfidence"></div>
-    <div class="section-label">Dominio por módulo</div>
+    <div class="section-label" id="statBarsLabel">Dominio por módulo</div>
     <div id="statModuleBars"></div>
-    <div class="section-label">Módulo más fuerte / más débil</div>
+    <div class="section-label" id="statExtremesLabel">Módulo más fuerte / más débil</div>
     <div id="statModuleExtremes" class="extremes-grid"></div>
     <div class="section-label">Insignias</div>
     <div class="ach-grid" id="achGrid"></div>
   </div>
-
 </div>
 
 <div class="bottom-nav">
-  <button class="nav-btn active" data-view="home" onclick="goto('home')"><span class="nb-ic">🏠</span>Inicio</button>
-  <button class="nav-btn" data-view="search" onclick="goto('search')"><span class="nb-ic">🔍</span>Buscar</button>
-  <button class="nav-btn" data-view="examSetup" onclick="goto('examSetup')"><span class="nb-ic">⏱️</span>Examen</button>
-  <button class="nav-btn" data-view="stats" onclick="goto('stats')"><span class="nb-ic">📊</span>Progreso</button>
+  <button class="nav-btn" data-action="go" data-to="inicio" data-nav="home"><span class="nb-ic">🏠</span>Inicio</button>
+  <button class="nav-btn" data-action="go" data-to="buscar" data-nav="search"><span class="nb-ic">🔍</span>Buscar</button>
+  <button class="nav-btn" data-action="go" data-to="examen" data-nav="examSetup"><span class="nb-ic">⏱️</span>Examen</button>
+  <button class="nav-btn" data-action="go" data-to="progreso" data-nav="stats"><span class="nb-ic">📊</span>Progreso</button>
 </div>
 
-<div class="toast" id="toast"></div>
-
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="celebrate-overlay" id="celebrateOverlay">
   <div class="celebrate-card">
     <div class="cc-emoji" id="ccEmoji">🎉</div>
     <div class="cc-title" id="ccTitle">¡Insignia desbloqueada!</div>
     <div class="cc-desc" id="ccDesc"></div>
-    <button class="btn btn-primary" onclick="closeCelebrate()">Continuar</button>
+    <button class="btn btn-primary" data-action="closeCelebrate">Continuar</button>
   </div>
 </div>
-
 <div class="celebrate-overlay" id="apiKeyOverlay">
   <div class="celebrate-card" style="text-align:left; max-width:360px;">
     <div class="cc-title" style="text-align:center;">🔑 Tutor IA</div>
     <div class="cc-desc" style="text-align:center;">Para usar "¿Por qué las otras están mal?" y la revisión Feynman necesitas tu propia clave API gratuita de Google Gemini. Se guarda solo en este dispositivo.</div>
-    <input type="password" id="apiKeyInput" aria-label="Clave API de Google Gemini" placeholder="AIza..." style="width:100%; background:var(--bg-elev-2); border:1px solid var(--border); border-radius:10px; padding:12px; color:var(--text); font-family:inherit; font-size:14px; margin-bottom:12px;">
+    <input type="password" id="apiKeyInput" class="field" aria-label="Clave API de Google Gemini" placeholder="AIza..." style="margin-bottom:12px;">
     <div style="font-size:11.5px; color:var(--text-dim); margin-bottom:14px;">Consíguela GRATIS en <b>aistudio.google.com/apikey</b> — inicia sesión con tu cuenta de Google, sin tarjeta de crédito.</div>
     <div class="btn-row">
-      <button class="btn btn-outline" onclick="closeApiKeyModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveApiKey()">Guardar</button>
+      <button class="btn btn-outline" data-action="closeApiKey">Cancelar</button>
+      <button class="btn btn-primary" data-action="saveApiKey">Guardar</button>
     </div>
   </div>
 </div>
 
-<script src="data.js"></script>
-<script>
-/* ============================================================
-   RSTI STUDY — App logic
-   Todo el estado se guarda en localStorage, 100% offline.
-   ============================================================ */
-
-const DAY = 24*60*60*1000;
-const BOX_INTERVALS = [0, 1*DAY, 3*DAY, 7*DAY, 16*DAY]; // ms until next review per box
-const MASTER_BOX = 3; // box >=3 counts as "dominada"
-const STORAGE_KEY = "rstiStudyState_v1";
-
-const ACHIEVEMENTS = [
-  {id:"first_step", icon:"🌱", name:"Primer Paso", desc:"Responde tu primera pregunta"},
-  {id:"ten", icon:"🔟", name:"Calentando motores", desc:"Responde 10 preguntas"},
-  {id:"hundred", icon:"💯", name:"Centenario", desc:"Responde 100 preguntas"},
-  {id:"all_seen", icon:"📚", name:"Todo Revisado", desc:"Revisa las 322 preguntas al menos una vez"},
-  {id:"streak3", icon:"🔥", name:"Racha x3", desc:"Estudia 3 días seguidos"},
-  {id:"streak7", icon:"🚀", name:"Racha x7", desc:"Estudia 7 días seguidos"},
-  {id:"quiz_perfect", icon:"🎯", name:"Perfeccionista", desc:"100% en un quiz de 10+ preguntas"},
-  {id:"exam_pass", icon:"🏅", name:"Examen Aprobado", desc:"80% o más en Modo Examen"},
-  {id:"feynman_first", icon:"🗣️", name:"Maestro Feynman", desc:"Explica un tema con tus palabras por primera vez"},
-  {id:"feynman_pro", icon:"🎓", name:"Tutor Nato", desc:"Completa 10 explicaciones estilo Feynman"},
-  {id:"mod1",icon:"💻",name:"Micro Master",desc:"Domina el módulo de Microcomputadoras"},
-  {id:"mod2",icon:"🛠️",name:"Técnico Preventivo",desc:"Domina Mantenimiento"},
-  {id:"mod3",icon:"🌐",name:"Networker",desc:"Domina Redes"},
-  {id:"mod4",icon:"🔌",name:"Cableador Pro",desc:"Domina Cableado Estructurado"},
-  {id:"mod5",icon:"🛡️",name:"Cazavirus",desc:"Domina Antivirus"},
-  {id:"mod6",icon:"🗂️",name:"Admin de Dominio",desc:"Domina Directorio Activo"},
-  {id:"mod7",icon:"⚙️",name:"Instalador Experto",desc:"Domina Instalación y Configuración"},
-  {id:"mod8",icon:"📧",name:"Mensajero Oficial",desc:"Domina Correo Institucional"},
-  {id:"mod9",icon:"📜",name:"Guardián de la Norma",desc:"Domina Normatividad y Seguridad"},
-  {id:"mod10",icon:"🏢",name:"Sistemista IMSS",desc:"Domina Sistemas Institucionales"},
-  {id:"full_master", icon:"👑", name:"Maestro RSTI", desc:"Domina las 322 preguntas"},
-];
-
-/* ---------------- State ---------------- */
-function defaultState(){
-  return {
-    xp:0,
-    streak:{count:0, lastDay:null},
-    totalSeconds:0,
-    cards:{}, // id -> {box, next, seen, correct, wrong}
-    quiz:{answered:0, correct:0, wrong:0},
-    unlocked:[],
-    moduleQuizBest:{},
-    dailyLog:{},      // 'YYYY-MM-DD' -> {answered, correct}
-    examHistory:[],   // [{date, pct, total, correct}]
-    confidenceLog:[], // [{qid, confidence, correct, date}] — últimos 200
-    feynmanCount:0,
-    quizSession:null // {moduleScope, hardOnly, ids, index, score} — quiz en curso, para reanudar
-  };
-}
-let STATE = loadState();
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    return Object.assign(defaultState(), parsed);
-  }catch(e){ return defaultState(); }
-}
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
-}
-function cardOf(id){
-  if(!STATE.cards[id]) STATE.cards[id] = {box:0, next:0, seen:0, correct:0, wrong:0};
-  return STATE.cards[id];
-}
-
-/* ---------------- Streak & session time tracking ---------------- */
-function todayStr(){ return new Date().toISOString().slice(0,10); }
-function logDaily(correct){
-  const d = todayStr();
-  if(!STATE.dailyLog[d]) STATE.dailyLog[d] = {answered:0, correct:0};
-  STATE.dailyLog[d].answered += 1;
-  if(correct) STATE.dailyLog[d].correct += 1;
-}
-function last7DaysLog(){
-  const out = [];
-  for(let i=6;i>=0;i--){
-    const d = new Date(Date.now()-i*DAY).toISOString().slice(0,10);
-    const entry = STATE.dailyLog[d] || {answered:0, correct:0};
-    out.push({date:d, ...entry});
-  }
-  return out;
-}
-function logConfidence(qid, confidence, correct){
-  STATE.confidenceLog.push({qid, confidence, correct, date: todayStr()});
-  if(STATE.confidenceLog.length > 200) STATE.confidenceLog = STATE.confidenceLog.slice(-200);
-}
-function confidenceStats(){
-  const log = STATE.confidenceLog;
-  if(!log.length) return null;
-  const overconfident = log.filter(e=>e.confidence>=4 && !e.correct);
-  const underconfident = log.filter(e=>e.confidence<=2 && e.correct);
-  const wellCalibrated = log.length - overconfident.length - underconfident.length;
-  return {
-    total: log.length,
-    overconfidentPct: Math.round((overconfident.length/log.length)*100),
-    underconfidentPct: Math.round((underconfident.length/log.length)*100),
-    wellCalibratedPct: Math.round((wellCalibrated/log.length)*100),
-    overconfidentCount: overconfident.length
-  };
-}
-function touchStreak(){
-  const today = todayStr();
-  if(STATE.streak.lastDay === today) return;
-  const yesterday = new Date(Date.now()-DAY).toISOString().slice(0,10);
-  if(STATE.streak.lastDay === yesterday){
-    STATE.streak.count += 1;
-  } else {
-    STATE.streak.count = 1;
-  }
-  STATE.streak.lastDay = today;
-  saveState();
-  if(STATE.streak.count===3) unlockAchievement("streak3");
-  if(STATE.streak.count===7) unlockAchievement("streak7");
-}
-let sessionStartTime = Date.now();
-setInterval(()=>{
-  if(document.hidden) return;
-  STATE.totalSeconds += 5;
-  saveState();
-}, 5000);
-
-/* ---------------- XP / Level ---------------- */
-function addXp(n){
-  const beforeLevel = levelFromXp(STATE.xp);
-  STATE.xp += n;
-  const afterLevel = levelFromXp(STATE.xp);
-  saveState();
-  renderTopbar();
-  if(afterLevel>beforeLevel){
-    showCelebrate("🆙", "¡Subiste de nivel!", `Ahora eres Nivel ${afterLevel}. Sigue así.`);
-  }
-}
-function levelFromXp(xp){ return Math.floor(xp/100)+1; }
-
-/* ---------------- Question helpers ---------------- */
-function questionById(id){ return QUESTIONS.find(q=>q.id===id); }
-function questionsByModule(modId){ return QUESTIONS.filter(q=>q.module===modId); }
-function moduleMeta(modId){ return MODULES.find(m=>m.id===modId); }
-
-/* ---------------- Datos Duros: preguntas de hechos concretos ----------------
-   Detecta preguntas cuya respuesta es un número, sigla, extensión de archivo,
-   nombre de comando/archivo técnico, etc. — el tipo de dato que se olvida
-   fácil y necesita repaso aparte de los conceptos. */
-const COMMON_WORDS = new Set(['PARA','PERO','ESTA','ESTE','ESTO','ESTAS','ESTOS','TODO','TODA','TODOS','TODAS',
-  'DEBE','DEBEN','PUEDE','PUEDEN','QUE','CON','SIN','LOS','LAS','DEL','SOBRE','ENTRE','CADA','MISMO','MISMA',
-  'CUAL','CUALES','DONDE','CUANDO','COMO','PORQUE']);
-function isHardFact(q){
-  const correctText = q.options.find(o=>o.letter===q.correct).text;
-  const combined = q.q + ' ' + correctText;
-  // números sueltos (fechas, plazos, medidas, cantidades)
-  if(/\b\d{1,4}\s*(mts|metros|d[ií]as|meses|a[ñn]os|horas|caracteres|mb|megabytes|mhz|ghz|db|%|puertos|veces)?\b/i.test(correctText) && /\d/.test(correctText)) return true;
-  // extensión de archivo o nombre de archivo técnico (.exe, .PST, FrmInst.exe)
-  if(/\.\w{2,4}\b/.test(combined)) return true;
-  // siglas de 2+ letras mayúsculas consecutivas que no sean palabras comunes
-  const acronyms = correctText.match(/\b[A-ZÁÉÍÓÚÑ]{2,}(-[A-Z]{2,})?\b/g) || [];
-  if(acronyms.some(a => a.length>=2 && !COMMON_WORDS.has(a))) return true;
-  return false;
-}
-function hardFactQuestions(){ return QUESTIONS.filter(isHardFact); }
-function startHardFactsQuiz(){
-  const pool = hardFactQuestions();
-  if(!pool.length){ showToast('No se detectaron preguntas de datos duros.'); return; }
-  touchStreak();
-  quizModuleScope = null;
-  quizHardOnly = true;
-  const n = Math.min(15, pool.length);
-  const due = dueCardsFor(pool);
-  let picked = shuffle(due).slice(0, n);
-  if(picked.length < n){
-    const rest = shuffle(pool.filter(q=>!picked.includes(q))).slice(0, n-picked.length);
-    picked = picked.concat(rest);
-  }
-  quizDeck = shuffle(picked);
-  quizIndex = 0;
-  quizScore = {correct:0, wrong:0};
-  document.getElementById('quizHeaderSub').textContent = `🔢 Datos duros · ${pool.length} detectados en el banco`;
-  goto('quiz');
-  renderQuizQuestion();
-  saveQuizSession();
-}
-
-/* Best-effort contextual tip for a failed question: matches key words from the
-   question against the module's puntos_clave / resumen; falls back to the
-   module's mnemotecnia. Not a per-question hand-written explanation — a bridge
-   to the module theory so the person knows exactly where to look. */
-function explainFor(q){
-  const m = moduleMeta(q.module);
-  if(!m) return '';
-  const stem = (q.q||'').toLowerCase();
-  const stemWords = stem.replace(/[¿?.,:;()]/g,'').split(/\s+/).filter(w=>w.length>4);
-  const pool = [...(m.puntos_clave||[]), ...(m.resumen||[])];
-  let best = null, bestScore = 0;
-  pool.forEach(line=>{
-    const lw = line.toLowerCase();
-    let score = 0;
-    stemWords.forEach(w=>{ if(lw.includes(w)) score++; });
-    if(score > bestScore){ bestScore = score; best = line; }
-  });
-  if(best && bestScore>0) return best;
-  return m.mnemotecnia || '';
-}
-
-function masteredCount(list){
-  return list.filter(q=>{
-    const c = STATE.cards[q.id];
-    return c && c.box >= MASTER_BOX;
-  }).length;
-}
-function seenCount(list){
-  return list.filter(q=> STATE.cards[q.id] && STATE.cards[q.id].seen>0).length;
-}
-
-function overallPct(){
-  return Math.round((masteredCount(QUESTIONS)/QUESTIONS.length)*100);
-}
-function modulesCompletedCount(){
-  return MODULES.filter(m=>{
-    const qs = questionsByModule(m.id);
-    return masteredCount(qs) >= Math.ceil(qs.length*0.8);
-  }).length;
-}
-
-/* ---------------- Achievements ---------------- */
-function unlockAchievement(id){
-  if(STATE.unlocked.includes(id)) return;
-  STATE.unlocked.push(id);
-  saveState();
-  const ach = ACHIEVEMENTS.find(a=>a.id===id);
-  if(ach) showCelebrate(ach.icon, "¡Insignia desbloqueada!", ach.name + " — " + ach.desc);
-  renderAchievements();
-}
-function checkGlobalAchievements(){
-  const totalAnswered = STATE.quiz.answered;
-  if(totalAnswered>=1) unlockAchievement("first_step");
-  if(totalAnswered>=10) unlockAchievement("ten");
-  if(totalAnswered>=100) unlockAchievement("hundred");
-  if(seenCount(QUESTIONS) >= QUESTIONS.length) unlockAchievement("all_seen");
-  if(masteredCount(QUESTIONS) >= QUESTIONS.length) unlockAchievement("full_master");
-  MODULES.forEach(m=>{
-    const qs = questionsByModule(m.id);
-    if(masteredCount(qs) >= Math.ceil(qs.length*0.85)){
-      unlockAchievement("mod"+m.id);
-    }
-  });
-}
-
-/* ---------------- Toast & Celebration ---------------- */
-let toastTimer=null;
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
-}
-function showCelebrate(emoji, title, desc){
-  document.getElementById('ccEmoji').textContent = emoji;
-  document.getElementById('ccTitle').textContent = title;
-  document.getElementById('ccDesc').textContent = desc;
-  document.getElementById('celebrateOverlay').classList.add('show');
-}
-function closeCelebrate(){
-  document.getElementById('celebrateOverlay').classList.remove('show');
-}
-
-/* ---------------- Navigation ---------------- */
-let currentView = 'home';
-function goto(view){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+view).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
-  currentView = view;
-  window.scrollTo(0,0);
-  if(view==='home') renderHome();
-  if(view==='stats') renderStats();
-  if(view==='examSetup') { /* keep chosen size */ }
-}
-
-/* ---------------- Topbar ---------------- */
-function renderTopbar(){
-  document.getElementById('lvlChip').textContent = levelFromXp(STATE.xp);
-  document.getElementById('xpChip').textContent = STATE.xp + " XP";
-  document.getElementById('streakChip').textContent = "🔥 " + STATE.streak.count;
-}
-
-/* ---------------- Home / module grid ---------------- */
-function renderHome(){
-  const pct = overallPct();
-  const ring = document.getElementById('heroRing');
-  const circumference = 2*Math.PI*35;
-  ring.setAttribute('stroke-dasharray', circumference.toFixed(1));
-  ring.style.strokeDashoffset = (circumference*(1-pct/100)).toFixed(1);
-  document.getElementById('heroPct').textContent = pct+"%";
-  document.getElementById('heroMastered').textContent = masteredCount(QUESTIONS);
-  document.getElementById('heroModsDone').textContent = modulesCompletedCount();
-  const hfEl = document.getElementById('hardFactsCount');
-  if(hfEl) hfEl.textContent = hardFactQuestions().length + ' detectados';
-
-  const resumeCard = document.getElementById('resumeQuizCard');
-  const s = STATE.quizSession;
-  if(resumeCard){
-    if(s && s.ids && s.ids.length){
-      resumeCard.style.display = 'block';
-      const label = s.hardOnly ? 'Datos duros' : (s.moduleScope ? moduleMeta(s.moduleScope).title : 'Quiz general');
-      document.getElementById('resumeQuizSub').textContent = `${label} · pregunta ${Math.min(s.index+1, s.ids.length)}/${s.ids.length} · ✔ ${s.score.correct} ✘ ${s.score.wrong}`;
-    } else {
-      resumeCard.style.display = 'none';
-    }
-  }
-
-  const grid = document.getElementById('moduleGrid');
-  grid.innerHTML = '';
-  MODULES.forEach(m=>{
-    const qs = questionsByModule(m.id);
-    const mPct = qs.length? Math.round((masteredCount(qs)/qs.length)*100) : 0;
-    const circumference2 = 2*Math.PI*18;
-    const done = mPct>=85;
-    const card = document.createElement('button');
-    card.className = 'module-card';
-    card.onclick = ()=>openModule(m.id);
-    card.innerHTML = `
-      ${done?'<div class="mc-done-badge">✓</div>':''}
-      <div class="mc-top">
-        <div class="mc-ring">
-          <svg viewBox="0 0 40 40">
-            <circle class="bg-c" cx="20" cy="20" r="18"></circle>
-            <circle class="fg-c" cx="20" cy="20" r="18" stroke-dasharray="${circumference2.toFixed(1)}" stroke-dashoffset="${(circumference2*(1-mPct/100)).toFixed(1)}"></circle>
-          </svg>
-          <div class="mc-icon">${m.icon}</div>
-        </div>
-        <div class="mc-num">M${m.id}</div>
-      </div>
-      <div class="mc-title">${m.title}</div>
-      <div class="mc-meta">${qs.length} preguntas · ${mPct}%</div>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-/* ---------------- Search ---------------- */
-function doSearch(){
-  const term = document.getElementById('searchInput').value.trim().toLowerCase();
-  const box = document.getElementById('searchResults');
-  if(term.length<2){ box.innerHTML=''; return; }
-  const results = QUESTIONS.filter(q=>{
-    if(q.q.toLowerCase().includes(term)) return true;
-    return q.options.some(o=>o.text.toLowerCase().includes(term));
-  }).slice(0,40);
-  if(!results.length){
-    box.innerHTML = `<div class="empty-state"><div class="es-ic">🔍</div>Sin resultados para "${escapeHtml(term)}"</div>`;
-    return;
-  }
-  box.innerHTML = results.map(q=>{
-    const highlighted = highlight(q.q, term);
-    return `<div class="search-item" onclick="openModule(${q.module})">
-      <div class="si-mod">${q.icon} M${q.module} · ${q.moduleTitle}</div>
-      <div class="si-q">${highlighted}</div>
-    </div>`;
-  }).join('');
-}
-function highlight(text, term){
-  const idx = text.toLowerCase().indexOf(term);
-  if(idx<0) return escapeHtml(text);
-  return escapeHtml(text.slice(0,idx)) + '<mark>' + escapeHtml(text.slice(idx,idx+term.length)) + '</mark>' + escapeHtml(text.slice(idx+term.length));
-}
-function escapeHtml(s){
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-/* ================= MODULE DETAIL ================= */
-let activeModuleId = null;
-let activeModTab = 'teoria';
-function openModule(modId){
-  activeModuleId = modId;
-  activeModTab = 'teoria';
-  const m = moduleMeta(modId);
-  document.getElementById('modTitle').textContent = m.icon + ' ' + m.title;
-  const qs = questionsByModule(modId);
-  document.getElementById('modSub').textContent = qs.length + ' preguntas · Módulo ' + modId;
-  document.querySelectorAll('#view-module .tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab==='teoria'));
-  renderModTeoria(m);
-  document.getElementById('modActionArea').innerHTML = '';
-  goto('module');
-}
-function setModTab(tab){
-  activeModTab = tab;
-  document.querySelectorAll('#view-module .tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
-  const m = moduleMeta(activeModuleId);
-  if(tab==='teoria'){
-    document.getElementById('modTeoria').style.display='block';
-    renderModTeoria(m);
-    document.getElementById('modActionArea').innerHTML='';
-  } else if(tab==='flash'){
-    document.getElementById('modTeoria').innerHTML='';
-    document.getElementById('modActionArea').innerHTML = `
-      <div class="content-card">
-        <h3>Flashcards de este módulo</h3>
-        <p style="margin-bottom:14px;">Repasa las ${questionsByModule(activeModuleId).length} preguntas de "${m.title}" en formato de tarjetas con repetición espaciada.</p>
-        <button class="btn btn-primary" onclick="startFlashSession(${activeModuleId})">🗂️ Empezar flashcards</button>
-      </div>`;
-  } else if(tab==='quiz'){
-    document.getElementById('modTeoria').innerHTML='';
-    document.getElementById('modActionArea').innerHTML = `
-      <div class="content-card">
-        <h3>Quiz de este módulo</h3>
-        <p style="margin-bottom:14px;">Ponte a prueba con preguntas de opción múltiple de "${m.title}", con retroalimentación inmediata.</p>
-        <button class="btn btn-primary" onclick="startQuiz(${activeModuleId})">⚡ Empezar quiz</button>
-      </div>`;
-  } else if(tab==='feynman'){
-    document.getElementById('modTeoria').innerHTML='';
-    renderFeynmanTab(m);
-  }
-}
-function renderModTeoria(m){
-  const el = document.getElementById('modTeoria');
-  el.style.display = 'block';
-  el.innerHTML = `
-    <div class="content-card">
-      <h3>Explicación</h3>
-      <p>${m.explicacion}</p>
-    </div>
-    <div class="content-card">
-      <h3>Resumen</h3>
-      <ul>${m.resumen.map(x=>'<li>'+x+'</li>').join('')}</ul>
-    </div>
-    <div class="content-card">
-      <h3>Puntos clave</h3>
-      <ul>${m.puntos_clave.map(x=>'<li>'+x+'</li>').join('')}</ul>
-    </div>
-    <div class="content-card">
-      <h3>⚠️ Errores comunes</h3>
-      <ul>${m.errores_comunes.map(x=>'<li>'+x+'</li>').join('')}</ul>
-    </div>
-    <div class="mnemo-box"><span style="font-size:20px;">🧠</span><div><b>Truco para recordar:</b><br>${m.mnemotecnia}</div></div>
-  `;
-}
-
-/* ================= MODO FEYNMAN ================= */
-function renderFeynmanTab(m){
-  const el = document.getElementById('modActionArea');
-  el.innerHTML = `
-    <div class="content-card">
-      <h3>🗣️ Explícalo tú (Método Feynman)</h3>
-      <p style="margin-bottom:10px;">Explica "<b>${m.title}</b>" con tus propias palabras, como si se lo enseñaras a alguien que no sabe nada del tema. No copies el resumen — entre más simple lo digas, mejor se ve si de verdad lo entiendes.</p>
-      <textarea id="feynmanInput" rows="6" placeholder="Escribe tu explicación aquí..." style="width:100%; background:var(--bg-elev-2); border:1px solid var(--border); border-radius:10px; padding:12px; color:var(--text); font-family:inherit; font-size:14px; resize:vertical;"></textarea>
-      <button class="btn btn-primary" style="margin-top:12px;" onclick="submitFeynman(${m.id})" id="feynmanSubmitBtn">Revisar mi explicación 🤖</button>
-      <div id="feynmanFeedback" style="margin-top:14px;"></div>
-    </div>`;
-}
-async function submitFeynman(modId){
-  const m = moduleMeta(modId);
-  const input = document.getElementById('feynmanInput').value.trim();
-  if(input.length < 15){
-    showToast('Escribe una explicación un poco más completa primero.');
-    return;
-  }
-  const btn = document.getElementById('feynmanSubmitBtn');
-  const fbEl = document.getElementById('feynmanFeedback');
-  const key = getGeminiKey();
-  if(!key){
-    fbEl.innerHTML = `<div class="feedback-box bad">🔑 Configura tu clave API de Google Gemini primero (botón 🔑 arriba).</div>`;
-    openApiKeyModal();
-    return;
-  }
-  btn.disabled = true;
-  btn.textContent = '⏳ Revisando tu explicación...';
-  fbEl.innerHTML = '';
-  const prompt = `Eres un tutor que aplica la Técnica Feynman con un estudiante que se prepara para el examen RSTI (Auxiliar de Soporte Técnico, IMSS).
-
-Tema oficial: "${m.title}"
-Definición/resumen oficial del material de estudio:
-${m.explicacion}
-Puntos clave oficiales: ${m.puntos_clave.join(' | ')}
-
-El estudiante escribió esta explicación del tema CON SUS PROPIAS PALABRAS:
-"${input}"
-
-Evalúa su explicación como tutor Feynman:
-1. Dile en 1 línea si está bien encaminado o no.
-2. Señala QUÉ le faltó o qué dijo mal (comparado con los puntos clave oficiales), en 2-3 líneas máximo.
-3. Si usó jerga técnica sin explicarla en simple, dile cuál y pídele que la explique más simple.
-4. Termina con UNA pregunta puntual para que profundice.
-
-Responde en español, tono de tutor cercano y directo, máximo 8 líneas totales, sin preámbulo tipo "Claro, aquí está mi evaluación".`;
-  try{
-    const result = await callGemini(prompt, key);
-    if(!result.ok){
-      fbEl.innerHTML = `<div class="feedback-box bad">⚠ Error de API: ${escapeHtml(result.error)}<br><br>Verifica tu clave 🔑 o tu cuota disponible.</div>`;
-      btn.disabled = false;
-      btn.textContent = 'Revisar mi explicación 🤖';
-      return;
-    }
-    const text = result.text;
-    fbEl.innerHTML = text
-      ? `<div class="feedback-box ok">🗣️ <b>Feedback del tutor:</b><br><br>${escapeHtml(text).replace(/\n/g,'<br>')}</div>`
-      : `<div class="feedback-box bad">No se pudo generar la revisión. Intenta de nuevo.</div>`;
-    STATE.feynmanCount = (STATE.feynmanCount||0) + 1;
-    saveState();
-    if(STATE.feynmanCount>=1) unlockAchievement("feynman_first");
-    if(STATE.feynmanCount>=10) unlockAchievement("feynman_pro");
-  }catch(e){
-    fbEl.innerHTML = `<div class="feedback-box bad">No se pudo conectar para revisar tu explicación. Revisa tu conexión e intenta de nuevo.</div>`;
-  }
-  btn.disabled = false;
-  btn.textContent = 'Revisar mi explicación 🤖';
-}
-
-/* ================= FLASHCARDS ================= */
-let flashDeck = [];
-let flashIndex = 0;
-let flashFlipped = false;
-
-function dueCardsFor(list){
-  const now = Date.now();
-  return list.filter(q=>{
-    const c = STATE.cards[q.id];
-    if(!c || c.seen===0) return true; // never seen -> always included
-    return c.next <= now;
-  });
-}
-function startFlashSession(modId){
-  touchStreak();
-  const pool = modId ? questionsByModule(modId) : QUESTIONS;
-  let due = dueCardsFor(pool);
-  if(due.length===0) due = shuffle(pool.slice()).slice(0, Math.min(20,pool.length));
-  else due = shuffle(due);
-  flashDeck = due.slice(0, 30);
-  flashIndex = 0;
-  document.getElementById('flashSub').textContent = modId ? moduleMeta(modId).title : 'Repaso general';
-  goto('flash');
-  renderFlashcard();
-}
-function renderFlashcard(){
-  if(flashDeck.length===0){
-    document.getElementById('fcQuestion').textContent = '¡Nada pendiente por ahora!';
-    return;
-  }
-  const q = flashDeck[flashIndex];
-  flashFlipped = false;
-  const cardEl = document.getElementById('flashcard');
-  cardEl.classList.remove('flipped');
-  document.getElementById('fcFrontTag').textContent = q.icon + ' MÓDULO ' + q.module + ' · ' + q.moduleTitle.toUpperCase();
-  document.getElementById('fcQuestion').textContent = q.q;
-  const correctOpt = q.options.find(o=>o.letter===q.correct);
-  document.getElementById('fcAnswer').textContent = q.correct + ') ' + correctOpt.text;
-  document.getElementById('fcNote').textContent = 'Módulo: ' + q.moduleTitle;
-  document.getElementById('fcRateRow').style.display = 'none';
-  document.getElementById('flashProgFill').style.width = Math.round((flashIndex/flashDeck.length)*100) + '%';
-}
-function flipCard(){
-  flashFlipped = !flashFlipped;
-  document.getElementById('flashcard').classList.toggle('flipped', flashFlipped);
-  if(flashFlipped) document.getElementById('fcRateRow').style.display = 'grid';
-}
-function rateCard(rating){
-  const q = flashDeck[flashIndex];
-  const c = cardOf(q.id);
-  c.seen += 1;
-  if(rating===0){ c.box = 0; c.wrong+=1; }
-  else if(rating===1){ c.box = Math.min(c.box+1, 4); c.correct+=1; }
-  else { c.box = Math.min(c.box+2, 4); c.correct+=1; }
-  c.next = Date.now() + BOX_INTERVALS[c.box];
-  addXp(5);
-  saveState();
-  checkGlobalAchievements();
-  nextCard();
-}
-function nextCard(){
-  if(flashIndex < flashDeck.length-1){
-    flashIndex++;
-    renderFlashcard();
-  } else {
-    showToast('🎉 Terminaste esta sesión de flashcards (+' + (flashDeck.length*5) + ' XP)');
-    renderHome();
-    goto('home');
-  }
-}
-function prevCard(){
-  if(flashIndex>0){ flashIndex--; renderFlashcard(); }
-}
-function exitFlash(){ goto(activeModuleId?'module':'home'); if(activeModuleId) openModule(activeModuleId); }
-
-/* ================= QUIZ ================= */
-let quizDeck = [];
-let quizIndex = 0;
-let quizScore = {correct:0, wrong:0};
-let quizModuleScope = null;
-let quizAnswered = false;
-let quizHardOnly = false;
-let quizSelectedLetter = null;
-
-/* Guarda el quiz en curso (deck, índice, marcador) para poder reanudarlo si
-   la app se recarga o se cierra a la mitad — antes se perdía por completo. */
-function saveQuizSession(){
-  STATE.quizSession = {
-    moduleScope: quizModuleScope,
-    hardOnly: quizHardOnly,
-    ids: quizDeck.map(q=>q.id),
-    index: quizIndex,
-    score: quizScore
-  };
-  saveState();
-}
-function clearQuizSession(){
-  if(STATE.quizSession){ STATE.quizSession = null; saveState(); }
-}
-function resumeQuizSession(){
-  const s = STATE.quizSession;
-  if(!s) return;
-  const deck = s.ids.map(id=>questionById(id)).filter(Boolean);
-  if(!deck.length || s.index>=deck.length){ clearQuizSession(); renderHome(); return; }
-  quizModuleScope = s.moduleScope;
-  quizHardOnly = s.hardOnly;
-  quizDeck = deck;
-  quizIndex = s.index;
-  quizScore = s.score;
-  document.getElementById('quizHeaderSub').textContent = quizHardOnly
-    ? `🔢 Datos duros · ${deck.length} detectados en el banco`
-    : (quizModuleScope ? moduleMeta(quizModuleScope).title : 'General · aleatorio');
-  goto('quiz');
-  renderQuizQuestion();
-}
-
-function startQuiz(modId, size){
-  touchStreak();
-  quizModuleScope = modId || null;
-  quizHardOnly = false;
-  const pool = modId ? questionsByModule(modId) : QUESTIONS;
-  const n = size || Math.min(10, pool.length);
-  // prioritize weak/due cards, mixed with randoms
-  const due = dueCardsFor(pool);
-  let picked = shuffle(due).slice(0, n);
-  if(picked.length < n){
-    const rest = shuffle(pool.filter(q=>!picked.includes(q))).slice(0, n-picked.length);
-    picked = picked.concat(rest);
-  }
-  quizDeck = shuffle(picked);
-  quizIndex = 0;
-  quizScore = {correct:0, wrong:0};
-  document.getElementById('quizHeaderSub').textContent = modId ? moduleMeta(modId).title : 'General · aleatorio';
-  goto('quiz');
-  renderQuizQuestion();
-  saveQuizSession();
-}
-function renderQuizQuestion(){
-  quizAnswered = false;
-  quizSelectedLetter = null;
-  const q = quizDeck[quizIndex];
-  document.getElementById('quizProgressLabel').textContent = `Pregunta ${quizIndex+1}/${quizDeck.length}`;
-  document.getElementById('quizScoreLabel').textContent = `✔ ${quizScore.correct}   ✘ ${quizScore.wrong}`;
-  document.getElementById('quizProgFill').style.width = Math.round((quizIndex/quizDeck.length)*100)+'%';
-  document.getElementById('quizTag').textContent = q.icon + ' Módulo ' + q.module + ' · ' + q.moduleTitle;
-  document.getElementById('quizQuestion').textContent = q.q;
-  const optsEl = document.getElementById('quizOptions');
-  const opts = shuffle(q.options.slice());
-  optsEl.innerHTML = opts.map(o=>`
-    <button class="opt-item" data-letter="${o.letter}" onclick="selectQuizOption('${o.letter}')">
-      <span class="opt-letter">${o.letter}</span><span>${escapeHtml(o.text)}</span>
-    </button>`).join('');
-  document.getElementById('quizFeedback').innerHTML = '';
-  document.getElementById('quizConfidence').style.display = 'none';
-  document.getElementById('quizNextBtn').style.display = 'none';
-}
-function selectQuizOption(letter){
-  if(quizSelectedLetter) return; // ya eligió, esperando nivel de confianza
-  quizSelectedLetter = letter;
-  document.querySelectorAll('#quizOptions .opt-item').forEach(btn=>{
-    btn.classList.add('disabled');
-    if(btn.dataset.letter === letter) btn.style.borderColor = 'var(--accent-2)';
-  });
-  document.getElementById('quizConfidence').style.display = 'block';
-  document.getElementById('quizConfidence').scrollIntoView({behavior:'smooth', block:'nearest'});
-}
-function submitQuizAnswer(confidence){
-  if(quizAnswered) return;
-  answerQuiz(quizSelectedLetter, confidence);
-}
-function answerQuiz(letter, confidence){
-  if(quizAnswered) return;
-  quizAnswered = true;
-  document.getElementById('quizConfidence').style.display = 'none';
-  const q = quizDeck[quizIndex];
-  const correct = letter === q.correct;
-  const c = cardOf(q.id);
-  c.seen += 1;
-  STATE.quiz.answered += 1;
-  logDaily(correct);
-  if(confidence){
-    logConfidence(q.id, confidence, correct);
-  }
-  if(correct){
-    quizScore.correct++; STATE.quiz.correct++;
-    c.box = Math.min(c.box+1,4); c.correct+=1;
-    addXp(10);
-  } else {
-    quizScore.wrong++; STATE.quiz.wrong++;
-    c.box = 0; c.wrong+=1;
-    addXp(2);
-  }
-  c.next = Date.now() + BOX_INTERVALS[c.box];
-  saveState();
-  saveQuizSession();
-  checkGlobalAchievements();
-
-  document.querySelectorAll('#quizOptions .opt-item').forEach(btn=>{
-    btn.classList.add('disabled');
-    if(btn.dataset.letter === q.correct) btn.classList.add('correct');
-    else if(btn.dataset.letter === letter) btn.classList.add('wrong');
-  });
-  const correctText = q.options.find(o=>o.letter===q.correct).text;
-  const tip = explainFor(q);
-  const overconfident = confidence>=4 && !correct;
-  const fb = document.getElementById('quizFeedback');
-  fb.innerHTML = `<div class="feedback-box ${correct?'ok':'bad'}">
-    ${correct?'✅ ¡Correcto!':'❌ Incorrecto.'} La respuesta correcta es <b>${q.correct}) ${escapeHtml(correctText)}</b>.
-    <br><span style="color:var(--text-dim);">Módulo: ${q.moduleTitle}</span>
-    ${overconfident ? `<div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--danger-dim); color:var(--danger);">⚠️ Estabas muy seguro y fallaste — esto es "falsa seguridad": revísala con más cuidado, es justo el tipo de error que te puede sorprender en el examen real.</div>` : ''}
-    ${tip ? `<div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border-soft);">💡 ${escapeHtml(tip)}</div>` : ''}
-    <div style="margin-top:10px;">
-      <button class="btn btn-outline" style="padding:7px 12px; font-size:12.5px;" onclick="explainWhyLive(${q.id}, '${letter}', this, 'quiz')">🤖 ¿Por qué las otras están mal?</button>
-      <div id="liveExplain-quiz-${q.id}" class="live-explain"></div>
-    </div>
-  </div>`;
-  document.getElementById('quizScoreLabel').textContent = `✔ ${quizScore.correct}   ✘ ${quizScore.wrong}`;
-  document.getElementById('quizNextBtn').style.display = 'block';
-  document.getElementById('quizNextBtn').textContent = (quizIndex<quizDeck.length-1) ? 'Siguiente pregunta →' : 'Ver resultados 🏁';
-}
-/* ---------------- Google Gemini API key management ---------------- */
-function getGeminiKey(){ return localStorage.getItem('rsti_gemini_key') || ''; }
-function openApiKeyModal(){
-  document.getElementById('apiKeyInput').value = getGeminiKey();
-  document.getElementById('apiKeyOverlay').classList.add('show');
-}
-function closeApiKeyModal(){ document.getElementById('apiKeyOverlay').classList.remove('show'); }
-function saveApiKey(){
-  const val = document.getElementById('apiKeyInput').value.trim();
-  if(val) localStorage.setItem('rsti_gemini_key', val);
-  else localStorage.removeItem('rsti_gemini_key');
-  closeApiKeyModal();
-  showToast(val ? '✓ Clave guardada' : 'Clave eliminada');
-}
-
-const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest", "gemini-2.0-flash-lite"];
-async function callGemini(prompt, key){
-  let lastMsg = 'Error desconocido';
-  for(const model of GEMINI_MODELS){
-    const controller = new AbortController();
-    const timeoutId = setTimeout(()=>controller.abort(), 15000);
-    try{
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 1000 }
-        })
-      });
-      if(!resp.ok){
-        const err = await resp.json().catch(()=>({}));
-        lastMsg = err.error?.message || ('HTTP '+resp.status);
-        continue;
-      }
-      const data = await resp.json();
-      const text = (data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('\n').trim();
-      if(text) return {ok:true, text};
-      lastMsg = 'Respuesta vacía del modelo';
-    }catch(e){
-      lastMsg = e.name === 'AbortError' ? 'Tiempo de espera agotado (15s)' : e.message;
-    }finally{
-      clearTimeout(timeoutId);
-    }
-  }
-  return {ok:false, error: lastMsg};
-}
-
-/* ---------------- Live "why" explanations via Gemini API ---------------- */
-const liveExplainCache = {};
-async function explainWhyLive(qid, chosenLetter, btn, ctx){
-  ctx = ctx || 'quiz';
-  const cacheKey = ctx+'-'+qid;
-  const container = document.getElementById('liveExplain-'+cacheKey);
-  if(liveExplainCache[cacheKey]){
-    container.innerHTML = liveExplainCache[cacheKey];
-    container.classList.add('show');
-    return;
-  }
-  const key = getGeminiKey();
-  if(!key){
-    container.innerHTML = '🔑 Configura tu clave API de Google Gemini primero (botón 🔑 arriba).';
-    container.classList.add('show');
-    openApiKeyModal();
-    return;
-  }
-  btn.disabled = true;
-  btn.textContent = '⏳ Pensando...';
-  container.innerHTML = '';
-  container.classList.add('show');
-  const q = questionById(qid);
-  const optsList = q.options.map(o=>`${o.letter}) ${o.text}`).join('\n');
-  const prompt = `Pregunta de examen RSTI (soporte técnico IMSS):
-"${q.q}"
-
-Opciones:
-${optsList}
-
-Respuesta correcta: ${q.correct}
-El usuario eligió: ${chosenLetter || '(no marcó ninguna a tiempo)'}
-
-Explica en español, en máximo 4 líneas muy breves y claras, por qué la opción correcta (${q.correct}) es la correcta y por qué cada una de las otras opciones NO lo es. Sé directo, sin preámbulo, usa un tono de tutor amigable. No repitas el texto completo de las opciones, solo la letra y la razón.`;
-  try{
-    const result = await callGemini(prompt, key);
-    if(!result.ok){
-      container.innerHTML = `⚠ Error de API: ${escapeHtml(result.error)}<br>Verifica tu clave 🔑 o tu cuota disponible.`;
-      btn.textContent = '🤖 ¿Por qué las otras están mal?';
-      btn.disabled = false;
-      return;
-    }
-    const text = result.text;
-    const html = text ? escapeHtml(text).replace(/\n/g,'<br>') : 'No se pudo generar la explicación. Intenta de nuevo.';
-    liveExplainCache[cacheKey] = html;
-    container.innerHTML = html;
-  }catch(e){
-    container.innerHTML = 'No se pudo conectar para generar la explicación. Revisa tu conexión e intenta de nuevo.';
-  }
-  btn.textContent = '🤖 ¿Por qué las otras están mal?';
-  btn.disabled = false;
-}
-
-function quizNext(){
-  if(quizIndex < quizDeck.length-1){
-    quizIndex++;
-    renderQuizQuestion();
-    saveQuizSession();
-  } else {
-    const pct = Math.round((quizScore.correct/quizDeck.length)*100);
-    if(pct===100 && quizDeck.length>=10) unlockAchievement("quiz_perfect");
-    clearQuizSession();
-    showFinalToast(pct);
-    goto('home');
-  }
-}
-function showFinalToast(pct){
-  showToast(`Quiz terminado: ${pct}% de aciertos`);
-}
-function exitQuiz(){ goto(quizModuleScope?'module':'home'); if(quizModuleScope) openModule(quizModuleScope); }
-
-/* ================= EXAM MODE ================= */
-let examSize = 20;
-let examDeck = [];
-let examIndex = 0;
-let examScore = {correct:0, wrong:0};
-let examWrongList = [];
-let examAllAnswers = [];
-let examWeakByModule = {};
-let examTimerInterval = null;
-let examSecondsLeft = 0;
-let examStartedAt = 0;
-
-function setExamSize(n){
-  examSize = n;
-  document.getElementById('examSizeLabel').textContent = n;
-}
-function startExam(){
-  const pool = shuffle(QUESTIONS.slice());
-  examDeck = pool.slice(0, Math.min(examSize, pool.length));
-  examIndex = 0;
-  examScore = {correct:0, wrong:0};
-  examWrongList = [];
-  examAllAnswers = [];
-  examWeakByModule = {};
-  examStartedAt = Date.now();
-  examSecondsLeft = Math.max(examDeck.length * 45, 300); // 45s per question, min 5 min
-  document.getElementById('examHeaderSub').textContent = examDeck.length + ' preguntas · simulacro';
-  goto('exam');
-  renderExamQuestion();
-  clearInterval(examTimerInterval);
-  examTimerInterval = setInterval(tickExamTimer, 1000);
-  tickExamTimer();
-}
-function tickExamTimer(){
-  examSecondsLeft--;
-  const m = Math.floor(examSecondsLeft/60), s = examSecondsLeft%60;
-  document.getElementById('examTimer').textContent = (m<0?0:m) + ':' + String(Math.max(s,0)).padStart(2,'0');
-  if(examSecondsLeft<=0){
-    clearInterval(examTimerInterval);
-    finishExam();
-  }
-}
-function renderExamQuestion(){
-  const q = examDeck[examIndex];
-  document.getElementById('examProgressLabel').textContent = `Pregunta ${examIndex+1}/${examDeck.length}`;
-  document.getElementById('examProgFill').style.width = Math.round((examIndex/examDeck.length)*100)+'%';
-  document.getElementById('examTag').textContent = q.icon + ' Módulo ' + q.module;
-  document.getElementById('examQuestion').textContent = q.q;
-  const optsEl = document.getElementById('examOptions');
-  const opts = shuffle(q.options.slice());
-  optsEl.innerHTML = opts.map(o=>`
-    <button class="opt-item" data-letter="${o.letter}" onclick="selectExamOption(this,'${o.letter}')">
-      <span class="opt-letter">${o.letter}</span><span>${escapeHtml(o.text)}</span>
-    </button>`).join('');
-  optsEl.dataset.selected = '';
-}
-function selectExamOption(btn, letter){
-  document.querySelectorAll('#examOptions .opt-item').forEach(b=>b.style.outline='none');
-  document.getElementById('examOptions').dataset.selected = letter;
-  document.querySelectorAll('#examOptions .opt-item').forEach(b=>{
-    b.style.borderColor = (b===btn) ? 'var(--accent-2)' : 'var(--border)';
-  });
-}
-function examNext(){
-  const q = examDeck[examIndex];
-  const sel = document.getElementById('examOptions').dataset.selected;
-  const c = cardOf(q.id);
-  c.seen += 1;
-  const isCorrect = sel === q.correct;
-  logDaily(isCorrect);
-  examAllAnswers.push({q, sel: sel||'(sin respuesta)', isCorrect});
-  if(isCorrect){
-    examScore.correct++;
-    c.box = Math.min(c.box+1,4); c.correct+=1;
-  } else {
-    examScore.wrong++;
-    c.box = 0; c.wrong+=1;
-    examWrongList.push({q, sel: sel||'(sin respuesta)'});
-    examWeakByModule[q.module] = (examWeakByModule[q.module]||0)+1;
-  }
-  c.next = Date.now() + BOX_INTERVALS[c.box];
-  saveState();
-  if(examIndex < examDeck.length-1){
-    examIndex++;
-    renderExamQuestion();
-  } else {
-    clearInterval(examTimerInterval);
-    finishExam();
-  }
-}
-function abortExam(){
-  clearInterval(examTimerInterval);
-  goto('home');
-}
-function finishExam(){
-  clearInterval(examTimerInterval);
-  const total = examDeck.length;
-  const pct = Math.round((examScore.correct/total)*100);
-  const elapsed = Math.round((Date.now()-examStartedAt)/1000);
-  STATE.quiz.answered += total;
-  STATE.quiz.correct += examScore.correct;
-  STATE.quiz.wrong += examScore.wrong;
-  STATE.examHistory.push({date: todayStr(), pct, total, correct: examScore.correct});
-  if(STATE.examHistory.length > 20) STATE.examHistory = STATE.examHistory.slice(-20);
-  addXp(50 + examScore.correct*3);
-  if(pct>=80) unlockAchievement("exam_pass");
-  checkGlobalAchievements();
-  saveState();
-
-  document.getElementById('resScore').textContent = pct+'%';
-  document.getElementById('resScore').style.color = pct>=80?'var(--accent)':(pct>=60?'var(--warning)':'var(--danger)');
-  document.getElementById('resMsg').textContent = pct>=80?'¡Excelente! Estás listo para el examen real.':(pct>=60?'Vas bien, sigue repasando tus áreas débiles.':'Necesitas más repaso — no te desanimes, cada intento suma.');
-  document.getElementById('resCorrect').textContent = examScore.correct;
-  document.getElementById('resWrong').textContent = examScore.wrong;
-  document.getElementById('resTime').textContent = Math.floor(elapsed/60)+':'+String(elapsed%60).padStart(2,'0');
-
-  const weakEl = document.getElementById('resWeakAreas');
-  const modIds = Object.keys(examWeakByModule).sort((a,b)=>examWeakByModule[b]-examWeakByModule[a]);
-  weakEl.innerHTML = modIds.length ? modIds.map(mid=>{
-    const m = moduleMeta(Number(mid));
-    return `<div class="bar-row"><div class="br-label">${m.icon} M${mid}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, examWeakByModule[mid]*20)}%; background:linear-gradient(90deg, var(--danger-dim), var(--danger));"></div></div><div class="br-pct">${examWeakByModule[mid]} err.</div></div>`;
-  }).join('') : '<p style="color:var(--text-dim); font-size:13px;">¡Sin errores por módulo! 🎉</p>';
-
-  const wrongEl = document.getElementById('resWrongList');
-  wrongEl.innerHTML = examWrongList.length ? examWrongList.map((w,idx)=>{
-    const correctText = w.q.options.find(o=>o.letter===w.q.correct).text;
-    const tip = explainFor(w.q);
-    const selLetter = (w.sel && w.sel.length===1) ? w.sel : '';
-    return `<div class="weak-item">
-      <div class="wq">${escapeHtml(w.q.q)}</div>
-      <div class="wu">Tu respuesta: ${w.sel}</div>
-      <div class="wa">Correcta: ${w.q.correct}) ${escapeHtml(correctText)}</div>
-      ${tip ? `<div class="wtip">💡 ${escapeHtml(tip)}</div>` : ''}
-      <div class="btn-row" style="margin-top:8px;">
-        <button class="btn btn-outline" style="padding:6px 10px; font-size:12px;" onclick="goto('module'); openModule(${w.q.module}); setModTab('teoria');">Repasar Módulo ${w.q.module} →</button>
-        <button class="btn btn-outline" style="padding:6px 10px; font-size:12px;" onclick="explainWhyLive(${w.q.id}, '${selLetter}', this, 'exam')">🤖 ¿Por qué?</button>
-      </div>
-      <div id="liveExplain-exam-${w.q.id}" class="live-explain"></div>
-    </div>`;
-  }).join('') : '<div class="empty-state"><div class="es-ic">🎉</div>¡Ninguna pregunta fallada!</div>';
-
-  document.getElementById('resFullList').style.display = 'none';
-  document.getElementById('resFullList').innerHTML = '';
-  document.getElementById('fullReviewBtn').textContent = 'Ver examen completo (todas las preguntas) ▾';
-
-  goto('results');
-}
-function toggleFullReview(){
-  const el = document.getElementById('resFullList');
-  const btn = document.getElementById('fullReviewBtn');
-  const showing = el.style.display !== 'none';
-  if(showing){
-    el.style.display = 'none';
-    btn.textContent = 'Ver examen completo (todas las preguntas) ▾';
-    return;
-  }
-  el.innerHTML = examAllAnswers.map((a,i)=>{
-    const correctText = a.q.options.find(o=>o.letter===a.q.correct).text;
-    return `<div class="weak-item" style="border-left:3px solid ${a.isCorrect?'var(--accent)':'var(--danger)'};">
-      <div class="wq">${i+1}. ${escapeHtml(a.q.q)}</div>
-      <div class="${a.isCorrect?'wa':'wu'}">${a.isCorrect?'✔ Correcta':'✘'} Tu respuesta: ${a.sel}</div>
-      ${a.isCorrect?'':`<div class="wa">Correcta: ${a.q.correct}) ${escapeHtml(correctText)}</div>`}
-    </div>`;
-  }).join('');
-  el.style.display = 'block';
-  btn.textContent = 'Ocultar examen completo ▴';
-}
-
-/* ================= STATS ================= */
-function renderStats(){
-  document.getElementById('statMastered').textContent = masteredCount(QUESTIONS)+'/'+QUESTIONS.length;
-  document.getElementById('statAnswered').textContent = STATE.quiz.answered;
-  const totalAns = STATE.quiz.correct+STATE.quiz.wrong;
-  document.getElementById('statCorrectPct').textContent = totalAns? Math.round((STATE.quiz.correct/totalAns)*100)+'%' : '0%';
-  document.getElementById('statStreak').textContent = STATE.streak.count + ' días';
-  const mins = Math.floor(STATE.totalSeconds/60);
-  document.getElementById('statTime').textContent = mins<60? mins+'m' : Math.floor(mins/60)+'h '+(mins%60)+'m';
-  document.getElementById('statLevel').textContent = 'Nivel ' + levelFromXp(STATE.xp);
-  document.getElementById('statXp').textContent = STATE.xp + ' XP total';
-
-  const barsEl = document.getElementById('statModuleBars');
-  const modPcts = MODULES.map(m=>{
-    const qs = questionsByModule(m.id);
-    const pct = qs.length? Math.round((masteredCount(qs)/qs.length)*100):0;
-    return {m, pct};
-  });
-  barsEl.innerHTML = modPcts.map(({m,pct})=>{
-    return `<div class="bar-row">
-      <div class="br-label">${m.icon} M${m.id}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;"></div></div>
-      <div class="br-pct">${pct}%</div>
-    </div>`;
-  }).join('');
-
-  /* Weekly activity chart */
-  const week = last7DaysLog();
-  const maxAnswered = Math.max(1, ...week.map(d=>d.answered));
-  const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  const weekEl = document.getElementById('statWeekChart');
-  weekEl.innerHTML = week.map(d=>{
-    const h = Math.round((d.answered/maxAnswered)*80);
-    const dow = dayNames[new Date(d.date+'T12:00:00').getDay()];
-    return `<div class="wc-col">
-      <div class="wc-num">${d.answered||''}</div>
-      <div class="wc-bar" style="height:${Math.max(h,d.answered>0?4:0)}px;"></div>
-      <div class="wc-lab">${dow}</div>
-    </div>`;
-  }).join('');
-
-  /* Exam history summary */
-  const examEl = document.getElementById('statExamSummary');
-  const hist = STATE.examHistory;
-  if(hist.length){
-    const best = Math.max(...hist.map(h=>h.pct));
-    const avg = Math.round(hist.reduce((s,h)=>s+h.pct,0)/hist.length);
-    examEl.innerHTML = `
-      <div class="es-box"><div class="es-num">${hist.length}</div><div class="es-lab">Simulacros hechos</div></div>
-      <div class="es-box"><div class="es-num">${best}%</div><div class="es-lab">Mejor puntaje</div></div>
-      <div class="es-box"><div class="es-num">${avg}%</div><div class="es-lab">Promedio</div></div>`;
-  } else {
-    examEl.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">⏱️</div>Aún no presentas ningún simulacro de examen.</div>`;
-  }
-
-  /* Confidence calibration */
-  const confEl = document.getElementById('statConfidence');
-  const cstats = confidenceStats();
-  if(cstats && cstats.total>=5){
-    confEl.innerHTML = `
-      <div class="exam-summary">
-        <div class="es-box"><div class="es-num" style="color:var(--danger);">${cstats.overconfidentPct}%</div><div class="es-lab">Falsa seguridad</div></div>
-        <div class="es-box"><div class="es-num">${cstats.wellCalibratedPct}%</div><div class="es-lab">Bien calibrado</div></div>
-        <div class="es-box"><div class="es-num" style="color:var(--accent-2);">${cstats.underconfidentPct}%</div><div class="es-lab">Sabes más de lo que crees</div></div>
-      </div>
-      ${cstats.overconfidentPct>=15 ? `<div class="empty-state" style="text-align:left; padding:12px;"><b style="color:var(--danger);">⚠️ ${cstats.overconfidentCount} veces</b> estuviste "seguro" o "totalmente seguro" y fallaste. Eso es más peligroso que no saber — en el examen real marcarías esas con confianza y las perderías. Repasa esas preguntas con calma, no de prisa.</div>` : ''}`;
-  } else {
-    confEl.innerHTML = `<div class="empty-state"><div class="es-ic">🎯</div>Responde con el nivel de confianza al menos 5 veces en el Quiz para ver tu calibración aquí.</div>`;
-  }
-
-  /* Strongest / weakest module */
-  const extEl = document.getElementById('statModuleExtremes');
-  const withData = modPcts.filter(x=>seenCount(questionsByModule(x.m.id))>0);
-  if(withData.length){
-    const strongest = withData.reduce((a,b)=>b.pct>a.pct?b:a);
-    const weakest = withData.reduce((a,b)=>b.pct<a.pct?b:a);
-    extEl.innerHTML = `
-      <div class="ex-box"><div class="ex-ic">💪</div><div class="ex-title">${strongest.m.icon} ${strongest.m.title}</div><div class="ex-pct">${strongest.pct}% dominado</div></div>
-      <div class="ex-box"><div class="ex-ic">🎯</div><div class="ex-title">${weakest.m.icon} ${weakest.m.title}</div><div class="ex-pct">${weakest.pct}% dominado — repasa aquí</div></div>`;
-  } else {
-    extEl.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">📊</div>Responde algunas preguntas para ver tus módulos fuerte/débil.</div>`;
-  }
-
-  renderAchievements();
-}
-function renderAchievements(){
-  const grid = document.getElementById('achGrid');
-  if(!grid) return;
-  grid.innerHTML = ACHIEVEMENTS.map(a=>{
-    const unlocked = STATE.unlocked.includes(a.id);
-    return `<div class="ach-item ${unlocked?'unlocked':''}">
-      <div class="ach-ic">${a.icon}</div>
-      <div class="ach-name">${a.name}</div>
-      <div class="ach-desc">${a.desc}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ---------------- Examen a Aplicar (ficha independiente, 63 preguntas oficiales) ---------------- */
-let eaDeck = [];
-let eaIndex = 0;
-let eaScore = {correct:0, wrong:0};
-let eaAnswered = false;
-let eaWrongList = [];
-
-function startExamenAplicar(){
-  eaDeck = EXAM_APLICAR.map(q=>{
-    const letters = ['A','B','C','D'];
-    const opts = shuffle(q.opts.map((text,i)=>({text, isCorrect: text===q.correctText})));
-    return {
-      id: q.id,
-      q: q.q,
-      options: opts.map((o,i)=>({letter: letters[i], text: o.text, isCorrect: o.isCorrect}))
-    };
-  });
-  eaIndex = 0;
-  eaScore = {correct:0, wrong:0};
-  eaWrongList = [];
-  document.getElementById('eaHeaderSub').textContent = eaDeck.length + ' preguntas · examen oficial';
-  goto('examenAplicarRun');
-  renderEaQuestion();
-}
-
-function renderEaQuestion(){
-  const q = eaDeck[eaIndex];
-  eaAnswered = false;
-  document.getElementById('eaProgressLabel').textContent = `Pregunta ${eaIndex+1}/${eaDeck.length}`;
-  document.getElementById('eaProgFill').style.width = Math.round((eaIndex/eaDeck.length)*100)+'%';
-  document.getElementById('eaScoreLabel').innerHTML = `✔ ${eaScore.correct} &nbsp; ✘ ${eaScore.wrong}`;
-  document.getElementById('eaQuestion').textContent = q.q;
-  document.getElementById('eaOptions').innerHTML = q.options.map(o=>`
-    <button class="opt-item" data-letter="${o.letter}" onclick="selectEaOption('${o.letter}')">
-      <span class="opt-letter">${o.letter}</span><span>${escapeHtml(o.text)}</span>
-    </button>`).join('');
-  document.getElementById('eaFeedback').innerHTML = '';
-  document.getElementById('eaNextBtn').style.display = 'none';
-}
-
-function selectEaOption(letter){
-  if(eaAnswered) return;
-  eaAnswered = true;
-  const q = eaDeck[eaIndex];
-  const chosen = q.options.find(o=>o.letter===letter);
-  const correctOpt = q.options.find(o=>o.isCorrect);
-  document.querySelectorAll('#eaOptions .opt-item').forEach(btn=>{
-    btn.classList.add('disabled');
-    const l = btn.dataset.letter;
-    if(l === correctOpt.letter) btn.style.borderColor = 'var(--accent)';
-    if(l === letter && !chosen.isCorrect) btn.style.borderColor = 'var(--danger)';
-  });
-  if(chosen.isCorrect){
-    eaScore.correct++;
-  } else {
-    eaScore.wrong++;
-    eaWrongList.push({q: q.q, chosen: chosen.text, correct: correctOpt.text});
-  }
-  document.getElementById('eaScoreLabel').innerHTML = `✔ ${eaScore.correct} &nbsp; ✘ ${eaScore.wrong}`;
-  document.getElementById('eaFeedback').innerHTML = `<div class="feedback-box ${chosen.isCorrect?'ok':'bad'}">
-    ${chosen.isCorrect ? '✅ ¡Correcto!' : '❌ Incorrecto.'} La respuesta correcta es <b>${correctOpt.letter}) ${escapeHtml(correctOpt.text)}</b>.
-  </div>`;
-  document.getElementById('eaNextBtn').style.display = 'block';
-  document.getElementById('eaNextBtn').textContent = (eaIndex<eaDeck.length-1) ? 'Siguiente pregunta →' : 'Ver resultados 🏁';
-}
-
-function eaNext(){
-  if(eaIndex < eaDeck.length-1){
-    eaIndex++;
-    renderEaQuestion();
-  } else {
-    showEaResults();
-  }
-}
-
-function abortExamenAplicar(){
-  if(confirm('¿Salir del examen? Se perderá tu avance actual.')) goto('home');
-}
-
-function showEaResults(){
-  const total = eaDeck.length;
-  const pct = Math.round((eaScore.correct/total)*100);
-  document.getElementById('eaResScore').textContent = pct + '%';
-  document.getElementById('eaResCorrect').textContent = eaScore.correct;
-  document.getElementById('eaResWrong').textContent = eaScore.wrong;
-  document.getElementById('eaResTotal').textContent = total;
-  document.getElementById('eaResMsg').textContent = pct>=80 ? '¡Excelente!' : pct>=60 ? 'Vas bien, sigue practicando' : 'Sigue practicando';
-  document.getElementById('eaResWrongList').innerHTML = eaWrongList.length ? eaWrongList.map(w=>`
-    <div class="content-card">
-      <p><b>${escapeHtml(w.q)}</b></p>
-      <p style="color:var(--danger);">Tu respuesta: ${escapeHtml(w.chosen)}</p>
-      <p style="color:var(--accent);">Correcta: ${escapeHtml(w.correct)}</p>
-    </div>`).join('') : '<p style="color:var(--text-dim);">¡Ninguna! Respondiste todo correctamente.</p>';
-  goto('examenAplicarResults');
-}
-
-/* ---------------- Utils ---------------- */
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
-  return arr;
-}
-
-/* ---------------- Init ---------------- */
-document.addEventListener('DOMContentLoaded', ()=>{
-  touchStreak();
-  renderTopbar();
-  renderHome();
-  renderAchievements();
-});
-
-/* ---------------- PWA: Service Worker registration ---------------- */
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{
-      /* si sw.js no está junto al index (ej. previsualización local), la app sigue funcionando sin offline real */
-    });
-  });
-}
-let deferredInstallPrompt = null;
-window.addEventListener('beforeinstallprompt', (e)=>{
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  const btn = document.getElementById('installBtn');
-  if(btn) btn.style.display = 'inline-flex';
-});
-function triggerInstall(){
-  if(!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(()=>{ deferredInstallPrompt = null; document.getElementById('installBtn').style.display='none'; });
-}
-
-</script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
