@@ -77,6 +77,7 @@ function renderQuestion() {
     <button class="opt-item" data-action="examOption" data-letter="${o.letter}">
       <span class="opt-letter">${o.letter}</span><span>${formatText(o.text)}</span>
     </button>`).join('');
+  $('examNextBtn').textContent = 'Saltar →';
 }
 
 function selectOption(letter, btn) {
@@ -84,13 +85,16 @@ function selectOption(letter, btn) {
   document.querySelectorAll('#examOptions .opt-item').forEach((b) => {
     b.style.borderColor = b === btn ? 'var(--accent)' : 'transparent';
   });
+  $('examNextBtn').textContent = 'Siguiente →';
 }
 
 function examNext() {
   const s = STATE.examSession;
   if (!s || secondsLeft() <= 0) return;
   const q = questionById(s.ids[s.index]);
-  recordAnswer(q.id, selected === q.correct);
+  // Saltar cuenta como incorrecta en la calificación, pero no castiga la tarjeta Leitner:
+  // no sabemos si la sabías, solo que decidiste no contestarla.
+  if (selected) recordAnswer(q.id, selected === q.correct);
   s.answers.push({ id: q.id, sel: selected });
   s.index++;
   saveState();
@@ -98,7 +102,7 @@ function examNext() {
   else { finishExam(); go('examen/resultados', { replace: true }); }
 }
 
-/* Califica el simulacro. Las preguntas que no alcanzaste a ver por falta de tiempo cuentan como
+/* Califica el simulacro. Las preguntas saltadas o que no alcanzaste a ver por falta de tiempo cuentan como
    incorrectas en la calificación, pero NO se suman a "preguntas respondidas" ni tocan tus tarjetas. */
 function finishExam() {
   clearInterval(timer);
@@ -107,7 +111,8 @@ function finishExam() {
   const total = s.ids.length;
   const answers = s.ids.map((id, i) => s.answers[i] || { id, sel: null, timedOut: true });
   const correct = answers.filter((a) => a.sel === questionById(a.id)?.correct).length;
-  const answered = s.answers.length;
+  const answered = s.answers.filter((a) => a.sel).length;
+  const timedOut = total - s.answers.length;
   const pct = Math.round((correct / total) * 100);
 
   STATE.quiz.answered += answered;
@@ -116,7 +121,7 @@ function finishExam() {
   STATE.examHistory.push({ date: todayStr(), pct, total, correct });
   if (STATE.examHistory.length > 20) STATE.examHistory = STATE.examHistory.slice(-20);
   STATE.lastExamResult = {
-    pct, total, correct, unanswered: total - answered,
+    pct, total, correct, unanswered: total - answered, skipped: s.answers.length - answered, timedOut,
     elapsed: Math.round((Math.min(Date.now(), s.endAt) - s.startedAt) / 1000),
     answers,
   };
@@ -128,7 +133,14 @@ function finishExam() {
 }
 
 /* ---------------- Resultados ---------------- */
-const answerLabel = (a) => a.sel || (a.timedOut ? '(sin responder — se acabó el tiempo)' : '(sin respuesta)');
+const answerLabel = (a) => a.sel || (a.timedOut ? '(sin responder — se acabó el tiempo)' : '(la saltaste)');
+
+function unansweredText(r) {
+  const parts = [];
+  if (r.skipped) parts.push(`${r.skipped} saltada(s)`);
+  if (r.timedOut) parts.push(`${r.timedOut} por tiempo`);
+  return `${r.unanswered} pregunta(s) sin responder (${parts.join(', ')}) — cuentan como incorrectas.`;
+}
 
 function enterResults() {
   const r = STATE.lastExamResult;
@@ -145,7 +157,9 @@ function enterResults() {
   $('resWrong').textContent = r.total - r.correct;
   $('resTime').textContent = fmtClock(r.elapsed);
   $('resUnanswered').hidden = !r.unanswered;
-  $('resUnanswered').textContent = `${r.unanswered} pregunta(s) sin responder por tiempo — cuentan como incorrectas.`;
+  $('resUnanswered').textContent = r.skipped === undefined // resultado guardado antes de esta versión
+    ? `${r.unanswered} pregunta(s) sin responder por tiempo — cuentan como incorrectas.`
+    : unansweredText(r);
 
   const byModule = {};
   wrong.forEach((a) => { byModule[a.q.module] = (byModule[a.q.module] || 0) + 1; });

@@ -3,7 +3,7 @@ import { $, escapeHtml } from '../util.js';
 import { route, questionsByModule, moduleShort } from '../study-routes.js';
 import { STATE, last7DaysLog, confidenceStats } from '../state.js';
 import { registerPage } from '../router.js';
-import { levelFromXp, achievements } from '../progress.js';
+import { levelFromXp, achievements, streakCount } from '../progress.js';
 import { masteredCount, seenCount, modulePct } from '../bank.js';
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -14,7 +14,12 @@ function renderStats() {
   $('statAnswered').textContent = STATE.quiz.answered;
   const totalAns = STATE.quiz.correct + STATE.quiz.wrong;
   $('statCorrectPct').textContent = totalAns ? Math.round((STATE.quiz.correct / totalAns) * 100) + '%' : '0%';
-  $('statStreak').textContent = STATE.streak.count + (STATE.streak.count === 1 ? ' día' : ' días');
+  const streak = streakCount();
+  $('statStreak').textContent = streak + (streak === 1 ? ' día' : ' días');
+  $('statFlash').textContent = STATE.flashRated;
+  $('statMissions').textContent = Object.keys(STATE.missions).length;
+  $('statTaBest').textContent = STATE.games.taBest;
+  $('statVfBest').textContent = STATE.games.vfBest;
   const mins = Math.floor(STATE.totalSeconds / 60);
   $('statTime').textContent = mins < 60 ? mins + 'm' : Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm';
   $('statLevel').textContent = 'Nivel ' + levelFromXp(STATE.xp);

@@ -2,7 +2,7 @@
 import { installActionListener } from './actions.js';
 import { startRouter } from './router.js';
 import { STATE, saveState } from './state.js';
-import { renderTopbar, touchStreak } from './progress.js';
+import { renderTopbar } from './progress.js';
 import './ai.js';
 import './pwa.js';
 import './views/home.js';
@@ -13,6 +13,7 @@ import './views/quiz.js';
 import './views/exam.js';
 import './views/aplicar.js';
 import './views/stats.js';
+import './views/games.js';
 
 installActionListener();
 
@@ -29,6 +30,5 @@ setInterval(() => {
   saveState();
 }, TICK_MS);
 
-touchStreak();
 renderTopbar();
 startRouter();

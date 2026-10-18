@@ -1,11 +1,11 @@
 /* Flashcards con repetición espaciada (sistema Leitner). */
 import { $, shuffle, formatText } from '../util.js';
 import { route, questionsByModule, moduleMeta, onRouteChange, unitTag } from '../study-routes.js';
-import { saveState, cardOf, BOX_INTERVALS } from '../state.js';
+import { STATE, saveState, cardOf, BOX_INTERVALS, logDaily } from '../state.js';
 import { registerPage, go } from '../router.js';
 import { registerActions } from '../actions.js';
 import { showToast } from '../ui.js';
-import { addXp, touchStreak, checkGlobalAchievements } from '../progress.js';
+import { addXp, checkGlobalAchievements } from '../progress.js';
 import { dueCardsFor, correctOption } from '../bank.js';
 
 const XP_PER_CARD = 5;
@@ -19,7 +19,6 @@ let xpEarned = 0;
 onRouteChange(() => { deck = []; });
 
 function startFlashSession(modId) {
-  touchStreak();
   const pool = modId ? questionsByModule(modId) : route.questions;
   const due = dueCardsFor(pool);
   deck = (due.length ? shuffle(due) : shuffle(pool.slice()).slice(0, 20)).slice(0, 30);
@@ -60,6 +59,8 @@ function rate(rating) {
   if (rating === 0) { c.box = 0; c.wrong += 1; }
   else { c.box = Math.min(c.box + rating, 4); c.correct += 1; } // Normal sube 1 caja, Fácil sube 2
   c.next = Date.now() + BOX_INTERVALS[c.box];
+  STATE.flashRated += 1;
+  logDaily(rating > 0); // cuenta para la actividad del día, la racha y las insignias
   saveState();
   xpEarned += XP_PER_CARD;
   addXp(XP_PER_CARD);

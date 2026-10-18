@@ -4,7 +4,7 @@
    URLs: #/aplicar · #/aplicar/curso · #/aplicar/resultados */
 import { $, shuffle, escapeHtml } from '../util.js';
 import { route } from '../study-routes.js';
-import { STATE, saveState } from '../state.js';
+import { STATE, saveState, logDaily } from '../state.js';
 import { registerPage, go } from '../router.js';
 import { registerActions } from '../actions.js';
 import { paginate } from '../ui.js';
@@ -64,6 +64,7 @@ function selectOption(letter) {
   s.answered = letter;
   if (chosen.isCorrect) s.score.correct++;
   else { s.score.wrong++; s.wrong.push({ i: s.index, chosen: chosen.text }); }
+  logDaily(chosen.isCorrect);
   saveState();
   showAnswer(q, letter);
 }

@@ -27,6 +27,7 @@
     <symbol id="i-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.5z"/></symbol>
     <symbol id="i-cards" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16"/></symbol>
     <symbol id="i-hash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 4 7 20M17 4l-2 16M4.5 9h16M3.5 15h16"/></symbol>
+    <symbol id="i-game" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 7h9a5 5 0 0 1 4.9 6l-.8 4a2.3 2.3 0 0 1-4 1L14.5 16h-5l-2.1 2a2.3 2.3 0 0 1-4-1l-.8-4a5 5 0 0 1 4.9-6Z"/><path d="M8 10v3M6.5 11.5h3M15.5 11h.01M17.5 12.5h.01"/></symbol>
     <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
   </defs>
 </svg>
@@ -56,6 +57,7 @@
       <button class="route-btn" role="tab" data-action="switchRoute" data-route="rsti">Examen RSTI</button>
       <button class="route-btn" role="tab" data-action="switchRoute" data-route="dev">Ruta Dev</button>
     </div>
+    <div id="missionCard" class="mission-card"></div>
     <div class="hero-progress">
       <div class="ring">
         <svg viewBox="0 0 82 82">
@@ -288,6 +290,74 @@
     <button class="btn btn-outline" style="margin-top:8px;" data-action="go" data-to="aplicar">Repetir examen (nuevo orden de respuestas)</button>
   </div>
 
+  <!-- ===================== JUEGOS ===================== -->
+  <div class="view" id="view-games">
+    <h1 class="page-title">Juegos</h1>
+    <p class="page-sub">Práctica rápida y con reto. Cada respuesta también cuenta para tu repaso y tu racha.</p>
+    <label class="section-label" for="gamePool" style="display:block;">Preguntas de</label>
+    <select id="gamePool" class="field"></select>
+    <button class="game-card" data-action="startGame" data-game="ta">
+      <div class="gc-ic ta">⚡</div>
+      <div class="gc-body">
+        <div class="gc-title">Contrarreloj</div>
+        <div class="gc-desc">60 segundos. Acierta seguido para multiplicar tus puntos (hasta x4). Cada acierto +1 s, cada error −3 s.</div>
+        <div class="gc-best" id="bestTa">Récord: 0 pts</div>
+      </div>
+    </button>
+    <button class="game-card" data-action="startGame" data-game="vf">
+      <div class="gc-ic vf">❤️</div>
+      <div class="gc-body">
+        <div class="gc-title">Verdadero o falso</div>
+        <div class="gc-desc">¿La respuesta que ves es la correcta? Decide en 8 segundos. Tienes 3 vidas: ¿cuánto aguantas?</div>
+        <div class="gc-best" id="bestVf">Récord: 0 pts</div>
+      </div>
+    </button>
+  </div>
+  <div class="view" id="view-gameRun">
+    <div class="view-header">
+      <button class="back-btn" data-action="finishGame" aria-label="Terminar partida">✕</button>
+      <div><div class="vh-title" id="gameTitle"></div><div class="vh-sub" id="gameSub"></div></div>
+    </div>
+    <div class="game-hud" id="gameHud">
+      <div class="gh-score"><span id="gameScore">0</span> pts</div>
+      <div class="gh-combo" id="gameCombo"></div>
+      <div class="gh-right" id="gameRight"></div>
+    </div>
+    <div class="time-bar"><div class="fill" id="gameTimeFill"></div></div>
+    <div class="quiz-q-card" id="gameCard">
+      <div class="q-tag" id="gameTag"></div>
+      <div class="q-text" id="gameQuestion"></div>
+      <div class="vf-claim" id="gameClaim" hidden></div>
+    </div>
+    <div class="opt-list" id="gameOptions"></div>
+    <div class="vf-row" id="gameVf" hidden>
+      <button class="vf-btn vf-false" data-action="vfAnswer" data-v="0">✗ Falso</button>
+      <button class="vf-btn vf-true" data-action="vfAnswer" data-v="1">✓ Verdadero</button>
+    </div>
+    <div id="gameFeedback"></div>
+  </div>
+  <div class="view" id="view-gameResults">
+    <div class="view-header">
+      <button class="back-btn" data-action="go" data-to="juegos" aria-label="Volver">←</button>
+      <div><div class="vh-title" id="grTitle">Resultado</div></div>
+    </div>
+    <div class="result-hero">
+      <div class="r-label">Puntos</div>
+      <div class="r-score" id="grScore">0</div>
+      <div class="r-label" id="grMsg"></div>
+    </div>
+    <div class="result-grid">
+      <div class="result-stat"><div class="rs-num" id="grCorrect">0</div><div class="rs-lab">Aciertos</div></div>
+      <div class="result-stat"><div class="rs-num" id="grWrong">0</div><div class="rs-lab">Errores</div></div>
+      <div class="result-stat"><div class="rs-num" id="grCombo">0</div><div class="rs-lab">Mejor combo</div></div>
+    </div>
+    <p class="muted" id="grAccuracy" style="text-align:center; font-size:13px; margin:-6px 0 4px;"></p>
+    <div class="section-label">Aprende de tus errores</div>
+    <div id="grErrors"></div>
+    <button class="btn btn-primary" style="margin-top:16px;" id="grReplay" data-action="startGame" data-game="ta">Jugar otra vez</button>
+    <button class="btn btn-outline" style="margin-top:8px;" data-action="go" data-to="juegos">Elegir otro juego</button>
+  </div>
+
   <!-- ===================== PROGRESO ===================== -->
   <div class="view" id="view-stats">
     <h1 class="page-title">Tu progreso</h1>
@@ -299,6 +369,10 @@
       <div class="stat-box"><div class="sb-val" id="statStreak">0 días</div><div class="sb-lab">Racha de estudio</div></div>
       <div class="stat-box"><div class="sb-val" id="statTime">0m</div><div class="sb-lab">Tiempo estudiado</div></div>
       <div class="stat-box"><div class="sb-val" id="statLevel">Nivel 1</div><div class="sb-lab" id="statXp">0 XP</div></div>
+      <div class="stat-box"><div class="sb-val" id="statFlash">0</div><div class="sb-lab">Tarjetas repasadas</div></div>
+      <div class="stat-box"><div class="sb-val" id="statMissions">0</div><div class="sb-lab">Misiones cumplidas</div></div>
+      <div class="stat-box"><div class="sb-val" id="statTaBest">0</div><div class="sb-lab">Récord Contrarreloj</div></div>
+      <div class="stat-box"><div class="sb-val" id="statVfBest">0</div><div class="sb-lab">Récord Verdadero/Falso</div></div>
     </div>
     <div class="section-label">Actividad — últimos 7 días</div>
     <div id="statWeekChart" class="week-chart"></div>
@@ -318,6 +392,7 @@
 <div class="bottom-nav">
   <button class="nav-btn" data-action="go" data-to="inicio" data-nav="home"><span class="nb-ic"><svg><use href="#i-home"/></svg></span>Inicio</button>
   <button class="nav-btn" data-action="go" data-to="buscar" data-nav="search"><span class="nb-ic"><svg><use href="#i-search"/></svg></span>Buscar</button>
+  <button class="nav-btn" data-action="go" data-to="juegos" data-nav="games"><span class="nb-ic"><svg><use href="#i-game"/></svg></span>Juegos</button>
   <button class="nav-btn" data-action="go" data-to="examen" data-nav="examSetup"><span class="nb-ic"><svg><use href="#i-timer"/></svg></span>Examen</button>
   <button class="nav-btn" data-action="go" data-to="progreso" data-nav="stats"><span class="nb-ic"><svg><use href="#i-chart"/></svg></span>Progreso</button>
 </div>

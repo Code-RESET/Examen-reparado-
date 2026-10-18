@@ -25,6 +25,9 @@ function defaultState() {
     examSession: null,     // simulacro en curso, para reanudar
     lastExamResult: null,  // último simulacro terminado (página de resultados)
     aplicarSession: null,  // "Examen a Aplicar" en curso
+    flashRated: 0,         // tarjetas calificadas en flashcards
+    missions: {},          // 'YYYY-MM-DD' -> {correct, total} misiones del día cumplidas
+    games: { taBest: 0, vfBest: 0, plays: 0 },
   };
 }
 
@@ -36,7 +39,8 @@ function loadState() {
     if (!raw) return defaultState();
     const parsed = JSON.parse(raw);
     delete parsed.moduleQuizBest; // campo que nunca se usó
-    return Object.assign(defaultState(), parsed);
+    const base = defaultState();
+    return Object.assign(base, parsed, { games: { ...base.games, ...parsed.games } });
   } catch {
     return defaultState();
   }
@@ -68,11 +72,25 @@ export function recordAnswer(id, correct) {
   logDaily(correct);
 }
 
-function logDaily(correct) {
+/* Cualquier práctica real (quiz, simulacro, flashcards, juegos) pasa por aquí: suma a la actividad
+   del día y avisa a quien escuche (la racha vive en progress.js y se suscribe con onStudy). */
+const studyListeners = [];
+export function onStudy(fn) { studyListeners.push(fn); }
+
+export function logDaily(correct) {
   const d = todayStr();
   if (!STATE.dailyLog[d]) STATE.dailyLog[d] = { answered: 0, correct: 0 };
   STATE.dailyLog[d].answered += 1;
   if (correct) STATE.dailyLog[d].correct += 1;
+  studyListeners.forEach((fn) => fn());
+}
+
+export const todayLog = () => STATE.dailyLog[todayStr()] || { answered: 0, correct: 0 };
+
+/* Total practicado en la vida de la ruta. quiz.answered cubre el progreso guardado antes de que existiera dailyLog. */
+export function totalPracticed() {
+  const logged = Object.values(STATE.dailyLog).reduce((n, d) => n + d.answered, 0);
+  return Math.max(logged, STATE.quiz.answered + STATE.flashRated);
 }
 
 export function last7DaysLog() {

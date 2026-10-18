@@ -1,5 +1,5 @@
 /* Quiz con retroalimentación inmediata y nivel de confianza.
-   Tipos: 'general' (rápido), 'module', 'hard' (datos duros) y 'weak' (puntos débiles).
+   Tipos: 'general' (rápido), 'module', 'hard' (datos duros), 'weak' (puntos débiles) y 'mission' (misión del día).
    El quiz en curso se guarda en STATE.quizSession para reanudarlo tras recargar. */
 import { $, escapeHtml, formatText } from '../util.js';
 import { route, questionById, questionsByModule, moduleMeta, unitTag } from '../study-routes.js';
@@ -7,9 +7,10 @@ import { STATE, saveState, recordAnswer, logConfidence } from '../state.js';
 import { registerPage, go } from '../router.js';
 import { registerActions } from '../actions.js';
 import { showToast } from '../ui.js';
-import { addXp, touchStreak, unlockAchievement, checkGlobalAchievements } from '../progress.js';
+import { addXp, unlockAchievement, checkGlobalAchievements } from '../progress.js';
 import { pickDeck, hardFactQuestions, weakQuestions, correctOption, displayOptions, explainFor } from '../bank.js';
 import { explainButton } from '../ai.js';
+import { buildMission, completeMission, TAG_LABEL } from '../mission.js';
 
 let deck = [];
 let session = null;   // referencia a STATE.quizSession
@@ -19,6 +20,7 @@ export function quizSessionLabel(s) {
   const kind = s.kind || (s.hardOnly ? 'hard' : s.moduleScope ? 'module' : 'general'); // sesiones guardadas antes de esta versión
   if (kind === 'hard') return 'Datos duros';
   if (kind === 'weak') return 'Puntos débiles';
+  if (kind === 'mission') return 'Misión del día';
   if (kind === 'module') return moduleMeta(s.moduleScope)?.title || 'Quiz';
   return 'Quiz general';
 }
@@ -27,14 +29,14 @@ function headerSub(s) {
   const kind = s.kind || (s.hardOnly ? 'hard' : s.moduleScope ? 'module' : 'general');
   if (kind === 'hard') return `Datos duros · ${hardFactQuestions().length} detectados en el banco`;
   if (kind === 'weak') return `Puntos débiles · las que más has fallado`;
+  if (kind === 'mission') return 'Misión del día · repasos, débiles y nuevas';
   if (kind === 'module') return moduleMeta(s.moduleScope)?.title || '';
   return 'General · aleatorio';
 }
 
-function begin(kind, questions, moduleScope = null) {
-  touchStreak();
+function begin(kind, questions, moduleScope = null, tags = null) {
   STATE.quizSession = {
-    kind, moduleScope, ids: questions.map((q) => q.id), index: 0, score: { correct: 0, wrong: 0 }, answered: false,
+    kind, moduleScope, ids: questions.map((q) => q.id), tags, index: 0, score: { correct: 0, wrong: 0 }, answered: false, combo: 0,
   };
   saveState();
   go('quiz');
@@ -61,13 +63,21 @@ function enterQuiz() {
   renderQuestion();
 }
 
+/* La misión guarda la etiqueta de cada pregunta en la misma posición que su id. */
+const tagOf = (i) => session.tags?.[i] && TAG_LABEL[session.tags[i]];
+
+function scoreLabel() {
+  const combo = session.combo >= 3 ? `   🔥 ${session.combo} seguidas` : '';
+  return `✔ ${session.score.correct}   ✘ ${session.score.wrong}${combo}`;
+}
+
 function renderQuestion() {
   selected = null;
   const q = deck[session.index];
   $('quizProgressLabel').textContent = `Pregunta ${session.index + 1}/${deck.length}`;
-  $('quizScoreLabel').textContent = `✔ ${session.score.correct}   ✘ ${session.score.wrong}`;
+  $('quizScoreLabel').textContent = scoreLabel();
   $('quizProgFill').style.width = Math.round((session.index / deck.length) * 100) + '%';
-  $('quizTag').textContent = unitTag(q);
+  $('quizTag').textContent = tagOf(session.index) ? `${tagOf(session.index)} · ${unitTag(q)}` : unitTag(q);
   $('quizQuestion').innerHTML = formatText(q.q);
   $('quizOptions').innerHTML = displayOptions(q).map((o) => `
     <button class="opt-item" data-action="quizOption" data-letter="${o.letter}">
@@ -100,8 +110,8 @@ function answer(confidence) {
   recordAnswer(q.id, correct);
   STATE.quiz.answered += 1;
   logConfidence(q.id, confidence, correct);
-  if (correct) { session.score.correct++; STATE.quiz.correct++; }
-  else { session.score.wrong++; STATE.quiz.wrong++; }
+  if (correct) { session.score.correct++; STATE.quiz.correct++; session.combo = (session.combo || 0) + 1; }
+  else { session.score.wrong++; STATE.quiz.wrong++; session.combo = 0; }
   saveState();
   addXp(correct ? 10 : 2);
   checkGlobalAchievements();
@@ -120,7 +130,7 @@ function answer(confidence) {
     ${tip ? `<div class="fb-extra muted">${escapeHtml(tip)}</div>` : ''}
     <div style="margin-top:10px;">${explainButton(q.id, letter, 'quiz')}</div>
   </div>`;
-  $('quizScoreLabel').textContent = `✔ ${session.score.correct}   ✘ ${session.score.wrong}`;
+  $('quizScoreLabel').textContent = scoreLabel();
   $('quizNextBtn').hidden = false;
   $('quizNextBtn').textContent = session.index < deck.length - 1 ? 'Siguiente pregunta →' : 'Ver resultados';
 }
@@ -142,9 +152,11 @@ function next() {
 function finishQuiz() {
   const pct = Math.round((session.score.correct / deck.length) * 100);
   if (pct === 100 && deck.length >= 10) unlockAchievement('quiz_perfect');
+  const kind = session.kind;
   STATE.quizSession = null;
   saveState();
-  showToast(`Quiz terminado: ${pct}% de aciertos`);
+  if (kind === 'mission' && completeMission(session.score, deck.length)) return;
+  showToast(`${kind === 'mission' ? 'Ronda extra terminada' : 'Quiz terminado'}: ${pct}% de aciertos`);
 }
 
 registerPage('quiz', { view: 'quiz', nav: null, enter: enterQuiz });
@@ -155,6 +167,10 @@ registerActions({
     const pool = hardFactQuestions();
     if (!pool.length) { showToast('No se detectaron preguntas de datos duros.'); return; }
     begin('hard', pickDeck(pool, Math.min(15, pool.length)));
+  },
+  startMission: () => {
+    const m = buildMission();
+    begin('mission', m.questions, null, m.tags);
   },
   startWeak: () => {
     const weak = weakQuestions();

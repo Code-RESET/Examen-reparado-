@@ -5,7 +5,9 @@ import { STATE } from '../state.js';
 import { registerPage, go } from '../router.js';
 import { registerActions } from '../actions.js';
 import { showToast } from '../ui.js';
-import { renderTopbar, touchStreak } from '../progress.js';
+import { renderTopbar, streakCount, studiedToday } from '../progress.js';
+import { buildMission, missionDoneToday, MISSION_SIZE } from '../mission.js';
+import { todayLog } from '../state.js';
 import {
   overallPct, masteredCount, modulesCompletedCount, modulePct, hardFactQuestions, weakQuestions, MODULE_DONE_RATIO,
 } from '../bank.js';
@@ -31,6 +33,7 @@ function renderHome() {
   $('heroModsTotal').textContent = route.modules.length;
   $('heroUnit').textContent = route.unitPlural;
 
+  renderMission();
   renderResumeCards();
   renderQuickActions();
 
@@ -60,11 +63,45 @@ function renderHome() {
   }).join('');
 }
 
+/* Tarjeta "Misión de hoy": lo primero que ves, para no tener que decidir qué estudiar. */
+function renderMission() {
+  const done = missionDoneToday();
+  const streak = streakCount();
+  const inMission = STATE.quizSession?.kind === 'mission';
+  const { counts, focus } = buildMission();
+  const parts = [
+    counts.review && `🔁 ${counts.review} repaso${counts.review > 1 ? 's' : ''}`,
+    counts.weak && `🎯 ${counts.weak} débil${counts.weak > 1 ? 'es' : ''}`,
+    counts.new && `🆕 ${counts.new} nueva${counts.new > 1 ? 's' : ''}`,
+  ].filter(Boolean).join(' · ');
+  const streakMsg = studiedToday()
+    ? `🔥 Racha de ${streak} ${streak === 1 ? 'día' : 'días'} · hoy llevas ${todayLog().answered}`
+    : streak ? `🔥 ¡Tu racha de ${streak} ${streak === 1 ? 'día' : 'días'} está en riesgo! Estudia hoy.` : '🔥 Contesta una pregunta para empezar tu racha';
+  const focusMsg = focus
+    ? `Enfoque de hoy: ${focus.m.icon} ${escapeHtml(focus.m.title)} · ${focus.pct}% dominado`
+    : `¡Dominaste ${route.id === 'rsti' ? 'todos los módulos' : 'todas las áreas'}! Repaso de mantenimiento.`;
+  let button;
+  if (inMission) button = `<button class="btn btn-primary" data-action="go" data-to="quiz">Continuar misión</button>`;
+  else if (done) button = `<button class="btn" data-action="startMission">Ronda extra (sin bono)</button>`;
+  else button = `<button class="btn btn-primary" data-action="startMission">Empezar misión</button>`;
+  $('missionCard').className = 'mission-card' + (done ? ' done' : '');
+  $('missionCard').innerHTML = `
+    <div class="mi-head">
+      <span class="mi-kicker">${done ? '✓ Misión cumplida' : 'Misión de hoy'}</span>
+      <span class="mi-xp">${done ? '¡Bien!' : '+50 XP'}</span>
+    </div>
+    <div class="mi-title">${done ? 'Vuelve mañana por otra misión' : `${MISSION_SIZE} preguntas · ~6 min`}</div>
+    ${done ? '' : `<div class="mi-parts">${parts}</div>`}
+    <div class="mi-focus">${focusMsg}</div>
+    <div class="mi-streak ${studiedToday() ? '' : 'risk'}">${streakMsg}</div>
+    ${button}`;
+}
+
 /* Tarjetas "Reanudar" para lo que quedó a medias (quiz, simulacro, examen a aplicar). */
 function renderResumeCards() {
   const cards = [];
   const qs = STATE.quizSession;
-  if (qs?.ids?.length) {
+  if (qs?.ids?.length && qs.kind !== 'mission') { // la misión se reanuda desde su propia tarjeta
     cards.push(resumeCard('quiz', 'Reanudar quiz',
       `${quizSessionLabel(qs)} · pregunta ${Math.min(qs.index + 1, qs.ids.length)}/${qs.ids.length} · ✔ ${qs.score.correct} ✘ ${qs.score.wrong}`));
   }
@@ -108,7 +145,6 @@ registerActions({
   openModule: ({ id }) => go(`modulo/${id}/teoria`),
   switchRoute: ({ route: id }) => {
     if (!setRoute(id)) return;
-    touchStreak();
     renderTopbar();
     renderHome();
     showToast(`${route.label} · tu progreso se guarda por separado`);

@@ -115,7 +115,8 @@ a{color:var(--accent);}
   background:var(--bg-elev-2); border-radius:999px; padding:5px 10px;
   font-size:13px; font-weight:600; font-variant-numeric:tabular-nums;
 }
-.streak-chip{color:var(--warning);}
+.streak-chip{color:var(--warning); transition:opacity .2s ease, filter .2s ease;}
+.streak-chip.pending{opacity:0.55; filter:grayscale(0.7);}
 .xp-chip .lvl{
   min-width:18px; height:18px; padding:0 4px; border-radius:999px; background:var(--accent); color:var(--on-accent);
   display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
@@ -158,6 +159,28 @@ p.page-sub{color:var(--text-dim); font-size:15px; margin-bottom:20px;}
 }
 .route-btn.active{background:var(--bg-elev); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.04);}
 @media (prefers-color-scheme: dark){ .route-btn.active{background:#636366;} }
+
+/* ---------- Misión del día ---------- */
+.mission-card{
+  position:relative; overflow:hidden; border-radius:18px; padding:18px; margin-bottom:12px; color:#fff;
+  background:linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+  box-shadow:0 8px 24px rgba(0,122,255,0.25);
+}
+.mission-card::after{ /* brillo decorativo */
+  content:""; position:absolute; right:-40px; top:-40px; width:140px; height:140px; border-radius:50%;
+  background:rgba(255,255,255,0.12); pointer-events:none;
+}
+.mission-card.done{background:linear-gradient(135deg, #34C759 0%, #30B0C7 100%); box-shadow:0 8px 24px rgba(52,199,89,0.22);}
+.mi-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+.mi-kicker{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; opacity:0.9;}
+.mi-xp{font-size:12px; font-weight:700; background:rgba(255,255,255,0.22); padding:3px 9px; border-radius:999px;}
+.mi-title{font-family:var(--font-display); font-size:22px; font-weight:700; letter-spacing:-0.02em; line-height:1.2;}
+.mi-parts{font-size:14px; margin-top:6px; opacity:0.95;}
+.mi-focus{font-size:13px; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.25); opacity:0.95;}
+.mi-streak{font-size:13px; margin-top:4px; opacity:0.95;}
+.mi-streak.risk{font-weight:700; opacity:1;}
+.mission-card .btn{margin-top:14px; position:relative; z-index:1; background:#fff; color:#007AFF;}
+.mission-card.done .btn{background:rgba(255,255,255,0.22); color:#fff;}
 
 /* ---------- Progreso general ---------- */
 .hero-progress{display:flex; align-items:center; gap:18px; padding:18px; margin-bottom:12px;}
@@ -370,6 +393,47 @@ mark{background:rgba(255,204,0,0.35); color:inherit; border-radius:3px; padding:
 .weak-item .wtip{color:var(--text-dim); font-size:14px; margin-top:8px; padding-top:8px; border-top:0.5px solid var(--border); line-height:1.4;}
 .weak-item .btn-row{flex-wrap:wrap;}
 
+/* ---------- Juegos ---------- */
+#gamePool{margin-bottom:14px; appearance:auto;}
+.game-card{
+  display:flex; gap:14px; align-items:flex-start; width:100%; text-align:left; border:none; color:var(--text);
+  background:var(--bg-elev); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-bottom:10px;
+  transition:transform .15s ease, background .15s ease;
+}
+.game-card:active{transform:scale(0.98); background:var(--bg-elev-2);}
+.gc-ic{flex:none; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px;}
+.gc-ic.ta{background:linear-gradient(135deg,#FF9500,#FF3B30);}
+.gc-ic.vf{background:linear-gradient(135deg,#FF2D55,#AF52DE);}
+.gc-body{min-width:0;}
+.gc-title{font-size:17px; font-weight:700;}
+.gc-desc{font-size:14px; color:var(--text-dim); margin-top:2px; line-height:1.35;}
+.gc-best{font-size:13px; font-weight:600; color:var(--accent); margin-top:6px; font-variant-numeric:tabular-nums;}
+.game-hud{position:relative; display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; font-variant-numeric:tabular-nums;}
+.gh-score{font-family:var(--font-display); font-size:22px; font-weight:700; letter-spacing:-0.02em;}
+.gh-combo{font-size:14px; font-weight:700; color:var(--warning); transition:transform .15s ease;}
+.gh-combo.hot{color:var(--danger); animation:pulse .6s ease infinite alternate;}
+.gh-right{font-size:15px; font-weight:600; min-width:56px; text-align:right;}
+@keyframes pulse{to{transform:scale(1.12);}}
+.time-bar{height:6px; background:var(--bg-elev-2); border-radius:3px; overflow:hidden; margin-bottom:14px;}
+.time-bar .fill{height:100%; width:100%; background:var(--success); border-radius:3px; transition:width .1s linear, background .3s ease;}
+.time-bar .fill.low{background:var(--danger);}
+.float-pts{
+  position:absolute; left:30%; top:0; font-weight:800; font-size:18px; color:var(--success); pointer-events:none;
+  animation:floatUp .9s ease-out forwards;
+}
+.float-pts.bad{color:var(--danger); left:auto; right:0;}
+@keyframes floatUp{from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-34px);}}
+.shake{animation:shake .4s ease;}
+@keyframes shake{20%,60%{transform:translateX(-7px);} 40%,80%{transform:translateX(7px);}}
+.vf-claim{margin-top:14px; padding:12px 14px; border-radius:12px; background:var(--accent-soft); font-size:17px; font-weight:600; line-height:1.35;}
+.vf-kicker{display:block; font-size:12px; font-weight:500; color:var(--text-dim); margin-bottom:4px;}
+.vf-row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.vf-btn{padding:18px 8px; border:none; border-radius:14px; font-size:18px; font-weight:700; transition:transform .1s ease;}
+.vf-btn:active{transform:scale(0.96);}
+.vf-btn[disabled]{opacity:0.4;}
+.vf-false{background:var(--danger-soft); color:var(--danger);}
+.vf-true{background:var(--success-soft); color:var(--success);}
+
 /* ---------- Progreso ---------- */
 .stat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:8px;}
 .stat-box{padding:14px 16px;}
@@ -418,7 +482,7 @@ mark{background:rgba(255,204,0,0.35); color:inherit; border-radius:3px; padding:
 }
 .nav-btn{
   display:flex; flex-direction:column; align-items:center; gap:2px; background:none; border:none;
-  color:var(--text-faint); font-size:10px; font-weight:500; padding:2px 12px; min-width:64px;
+  color:var(--text-faint); font-size:10px; font-weight:500; padding:2px 4px; min-width:56px; flex:1; max-width:96px;
 }
 .nav-btn .nb-ic{display:flex; height:26px; align-items:center;}
 .nav-btn .nb-ic svg{width:24px; height:24px;}

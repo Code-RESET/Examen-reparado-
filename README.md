@@ -5,8 +5,13 @@ App de estudio (PWA, funciona sin conexión) con dos **rutas** independientes:
 - **📋 Examen RSTI**: 322 preguntas en 10 módulos + el "Examen a Aplicar" (63 preguntas oficiales).
 - **💻 Ruta Dev**: 40 preguntas en 4 áreas (JavaScript, Firebase Seguridad, Git, Backend).
 
-Cada ruta tiene quiz, flashcards (Leitner), puntos débiles, simulacro cronometrado, Feynman con tutor IA,
-búsqueda y estadísticas. El progreso de cada ruta se guarda por separado.
+Cada ruta tiene **misión del día**, **juegos** (Contrarreloj y Verdadero o falso), quiz, flashcards (Leitner),
+puntos débiles, simulacro cronometrado, Feynman con tutor IA, búsqueda y estadísticas. El progreso de cada ruta se guarda por separado.
+
+- **Misión del día** (tarjeta al inicio): 12 preguntas armadas solas — puntos débiles, repasos que ya tocan y nuevas del
+  módulo de enfoque (el más débil que ya empezaste). Cumplirla da +50 XP una vez al día.
+- **Juegos**: cada respuesta alimenta el repaso Leitner y la racha; al final se muestran tus errores con la respuesta correcta.
+- **Racha**: solo cuenta los días en que contestas o calificas algo (abrir la app no basta). Se ve atenuada mientras no estudies hoy.
 
 Sin frameworks, sin build y sin librerías: HTML + CSS + módulos ES nativos. Se publica tal cual en GitHub Pages.
 
@@ -34,11 +39,12 @@ js/state.js           Progreso guardado (localStorage) y sistema Leitner
 js/bank.js            Consultas: dominadas, pendientes, puntos débiles, datos duros
 js/progress.js        XP, niveles, racha, insignias, barra superior
 js/ui.js              Avisos, celebraciones y paginación
+js/mission.js         Misión del día: arma la sesión y da el bono al cumplirla
 js/ai.js              Tutor IA (Google Gemini)
 js/pwa.js             Service worker y botón Instalar
 js/storage.js         localStorage seguro (no truena en modo privado)
 js/util.js            Utilidades puras
-js/views/*.js         Una vista por archivo: home, search, module, flashcards, quiz, exam, aplicar, stats
+js/views/*.js         Una vista por archivo: home, search, module, flashcards, quiz, exam, aplicar, games, stats
 sw.js                 Service worker (caché sin conexión)
 scripts/check-data.js Valida los bancos y que sw.js tenga todos los archivos
 scripts/smoke-test.js Pruebas de punta a punta en Chromium (vista de celular)
@@ -54,6 +60,7 @@ scripts/smoke-test.js Pruebas de punta a punta en Chromium (vista de celular)
 | `#/flashcards` · `#/quiz` | Sesión de flashcards / quiz |
 | `#/examen` · `#/examen/curso` · `#/examen/resultados` | Simulacro |
 | `#/aplicar` · `#/aplicar/curso` · `#/aplicar/resultados` | Examen a Aplicar (solo RSTI) |
+| `#/juegos` · `#/juegos/jugar` · `#/juegos/resultado` | Juegos |
 | `#/progreso` | Estadísticas e insignias |
 
 ### Llaves de localStorage
@@ -77,4 +84,5 @@ scripts/smoke-test.js Pruebas de punta a punta en Chromium (vista de celular)
 ```bash
 node scripts/check-data.js     # bancos consistentes y sw.js al día
 npm install && npm test        # validación + pruebas en navegador (Playwright)
+# si Playwright no encuentra su Chromium: CHROMIUM_PATH=/ruta/a/chromium npm test
 ```

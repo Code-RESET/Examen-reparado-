@@ -111,6 +111,8 @@ try {
     check((await page.textContent('#resumeCards')).includes('pregunta 2/3'), 'quiz a medias (formato viejo) se ofrece para reanudar');
     await tap(page, '#resumeCards .card-btn');
     check(await hash(page) === '#/quiz' && (await page.textContent('#quizProgressLabel')) === 'Pregunta 2/3', 'reanuda en la pregunta 2/3');
+    await tap(page, '#quizOptions .opt-item >> nth=0');
+    await tap(page, '.conf-btn >> nth=2');
     const st = await ls(page, RSTI_KEY);
     check(st.cards['1'].box === 3 && !('moduleQuizBest' in st), 'datos intactos y campo muerto eliminado al guardar');
     await page.context().close();
@@ -216,7 +218,10 @@ try {
     await tap(page, '[data-action="startExam"]');   // 20 preguntas, 15 min
     await tap(page, '#examOptions .opt-item >> nth=0');
     await tap(page, '#examNextBtn');
-    await tap(page, '#examNextBtn');                  // 2 contestadas (1 en blanco)
+    check(await page.textContent('#examNextBtn') === 'Saltar →', 'sin opción marcada el botón dice "Saltar"');
+    const skippedId = (await ls(page, RSTI_KEY)).examSession.ids[1];
+    await tap(page, '#examNextBtn');                  // 1 contestada + 1 saltada
+    check(!(await ls(page, RSTI_KEY)).cards[skippedId], 'saltar no toca la tarjeta Leitner de esa pregunta');
     await page.reload();
     await page.waitForSelector('#examOptions .opt-item');
     check(await page.textContent('#examProgressLabel') === 'Pregunta 3/20', 'tras recargar el simulacro sigue en la 3/20');
@@ -228,10 +233,11 @@ try {
     await tap(page, '#resumeCards .card-btn');
     check(await hash(page) === '#/examen/resultados', 'toca → resultados');
     const st = await ls(page, RSTI_KEY);
-    check(st.quiz.answered === 2, `solo cuenta 2 respondidas (no 20): ${st.quiz.answered}`);
+    check(st.quiz.answered === 1, `solo cuenta 1 respondida (ni la saltada ni las de tiempo): ${st.quiz.answered}`);
     const shownWrong = Number(await page.textContent('#resWrong')), shownRight = Number(await page.textContent('#resCorrect'));
     check(shownWrong + shownRight === 20, 'correctas + incorrectas = 20');
-    check((await page.textContent('#resUnanswered')).includes('18'), 'avisa 18 sin responder por tiempo');
+    const unans = await page.textContent('#resUnanswered');
+    check(unans.includes('19') && unans.includes('1 saltada') && unans.includes('18 por tiempo'), `avisa 19 sin responder (1 saltada, 18 por tiempo): ${unans}`);
     check(await page.locator('#resWrongList .weak-item').count() === 10 && await page.locator('#resWrongList .pager').count() === 1, 'lista de falladas paginada (10 por página)');
     await tap(page, '#resWrongList [data-dir="1"]');
     check((await page.textContent('#resWrongList .pg-info')).startsWith('Página 2/'), 'página 2 de falladas');
@@ -239,11 +245,23 @@ try {
     await page.context().close();
   }
 
-  console.log('\n7) Racha con fecha local (México, 8 pm)');
+  console.log('\n7) Racha: fecha local y solo cuenta si estudias');
   {
     const page = await open({ clock: new Date('2026-09-29T20:00:00-06:00'), timezoneId: 'America/Mexico_City' });
+    check(!(await ls(page, RSTI_KEY))?.streak?.lastDay, 'abrir la app no cuenta como día de estudio');
+    check(await page.isVisible('#streakChip.pending'), 'la racha se ve atenuada mientras no estudies hoy');
+    await tap(page, '[data-action="startQuiz"]');
+    await tap(page, '#quizOptions .opt-item >> nth=0');
+    await tap(page, '.conf-btn >> nth=2');
     const st = await ls(page, RSTI_KEY);
-    check(st.streak.lastDay === '2026-09-29', `el día registrado es el local: ${st.streak.lastDay}`);
+    check(st.streak.lastDay === '2026-09-29' && st.streak.count === 1, `al contestar cuenta el día local: ${st.streak.lastDay}`);
+    check(!(await page.isVisible('#streakChip.pending')), 'la racha se enciende al estudiar');
+    await page.context().close();
+  }
+  {
+    const old = { xp: 0, streak: { count: 5, lastDay: '2026-09-20' }, cards: {}, quiz: { answered: 0, correct: 0, wrong: 0 }, dailyLog: {} };
+    const page = await open({ seed: { [RSTI_KEY]: old }, clock: new Date('2026-09-29T10:00:00') });
+    check(await page.textContent('#streakChip') === '🔥 0', 'una racha vieja (hace 9 días) se muestra rota: 0');
     await page.context().close();
   }
 
@@ -257,7 +275,10 @@ try {
     await tap(page, '[data-action="prevCard"]');
     await tap(page, '#flashcard');
     check(await page.isVisible('#fcRated') && !(await page.isVisible('#fcRateRow')), 'tarjeta ya calificada no se puede volver a calificar');
-    check((await ls(page, RSTI_KEY)).xp === 5, 'XP = 5 (no se duplica)');
+    const fst = await ls(page, RSTI_KEY);
+    check(fst.xp === 5, 'XP = 5 (no se duplica)');
+    check(fst.flashRated === 1 && Object.values(fst.dailyLog)[0]?.answered === 1, 'la tarjeta calificada cuenta en la actividad del día');
+    check(fst.unlocked.includes('first_step') && !!fst.streak.lastDay, 'las flashcards cuentan para insignias y racha');
     await tap(page, '[data-action="exitFlash"]');
     check(await page.isVisible('#moduleGrid'), 'salir de un repaso general vuelve al inicio');
     await page.context().close();
@@ -296,7 +317,7 @@ try {
   console.log('\n11) Todas las páginas caben en el celular');
   {
     const page = await open();
-    for (const p of ['inicio', 'buscar', 'modulo/1/teoria', 'examen', 'progreso', 'aplicar']) {
+    for (const p of ['inicio', 'buscar', 'modulo/1/teoria', 'examen', 'progreso', 'aplicar', 'juegos']) {
       await page.goto(BASE + '#/' + p);
       check(await noHorizontalScroll(page), `#/${p} sin scroll horizontal`);
     }
@@ -305,6 +326,79 @@ try {
     check(await page.locator('#searchResults .search-item').count() === 10 && await page.locator('#searchResults .pager').count() === 1, 'búsqueda amplia paginada de 10 en 10');
     await tap(page, '#searchResults .search-item >> nth=0');
     check(await page.isVisible('#searchResults .search-item.open .si-answer'), 'tocar un resultado muestra la respuesta');
+    await page.context().close();
+  }
+
+  console.log('\n12) Misión del día');
+  {
+    const page = await open();
+    await exposeAnswers(page);
+    check((await page.textContent('#missionCard')).includes('Misión de hoy'), 'la tarjeta de misión aparece en el inicio');
+    check((await page.textContent('#missionCard')).includes('Enfoque de hoy'), 'sugiere un módulo de enfoque');
+    await tap(page, '[data-action="startMission"]');
+    const ms = (await ls(page, RSTI_KEY)).quizSession;
+    check(ms.kind === 'mission' && ms.ids.length === 12 && ms.tags.length === 12, 'misión de 12 preguntas con su etiqueta');
+    check((await page.textContent('#quizTag')).includes('Nueva'), 'cada pregunta indica si es nueva / repaso / débil');
+    for (let i = 0; i < 12; i++) { await answerQuiz(page, i % 3 !== 0); await quizNext(page); }
+    check(await page.isVisible('#celebrateOverlay.show') && (await page.textContent('#ccTitle')).includes('Misión cumplida'), 'celebra la misión cumplida');
+    await dismiss(page);
+    const st = await ls(page, RSTI_KEY);
+    check(Object.keys(st.missions).length === 1 && st.unlocked.includes('mission_first'), 'misión registrada e insignia ganada');
+    check((await page.textContent('#missionCard')).includes('Misión cumplida') && await page.isVisible('#missionCard [data-action="startMission"]'), 'tras cumplirla ofrece ronda extra');
+    // La segunda misión del día ya prioriza los repasos/débiles de lo fallado
+    await tap(page, '[data-action="startMission"]');
+    const m2 = (await ls(page, RSTI_KEY)).quizSession;
+    check(m2.tags.includes('weak'), 'la ronda siguiente incluye puntos débiles');
+    check(page.errors.length === 0, 'sin errores de JavaScript' + (page.errors.length ? ': ' + page.errors : ''));
+    await page.context().close();
+  }
+
+  console.log('\n13) Juegos');
+  {
+    const page = await open();
+    await exposeAnswers(page);
+    await tap(page, '.nav-btn[data-nav="games"]');
+    check(await hash(page) === '#/juegos' && await noHorizontalScroll(page), 'página de juegos sin scroll horizontal');
+    check(await page.locator('#gamePool option').count() === 11, 'se puede elegir todo el banco o un módulo (11 opciones)');
+    // Contrarreloj
+    await tap(page, '[data-action="startGame"][data-game="ta"]');
+    for (let i = 0; i < 4; i++) {
+      await page.waitForSelector('#gameOptions .opt-item:not(.disabled)');
+      // la respuesta correcta está marcada con la letra en el banco; se busca por el texto de la pregunta
+      const letter = await page.evaluate(async () => {
+        const [{ QUESTIONS }] = await Promise.all([import('./data/rsti.js')]);
+        const text = document.querySelector('#gameQuestion').textContent;
+        return QUESTIONS.find((q) => q.q === text)?.correct;
+      });
+      await page.click(`#gameOptions .opt-item[data-letter="${letter}"]`);
+    }
+    check((await page.textContent('#gameCombo')).includes('4'), 'el combo sube con aciertos seguidos');
+    check(Number(await page.textContent('#gameScore')) === 10 + 10 + 20 + 20, 'multiplicador x2 a partir de 3 seguidas (60 pts)');
+    await page.waitForSelector('#gameOptions .opt-item:not(.disabled)');
+    const wrong = await page.evaluate(async () => {
+      const { QUESTIONS } = await import('./data/rsti.js');
+      const q = QUESTIONS.find((x) => x.q === document.querySelector('#gameQuestion').textContent);
+      return q.options.find((o) => o.letter !== q.correct).letter;
+    });
+    await page.click(`#gameOptions .opt-item[data-letter="${wrong}"]`);
+    check(await page.textContent('#gameCombo') === '', 'un error rompe el combo');
+    await tap(page, '[data-action="finishGame"]');
+    check(await hash(page) === '#/juegos/resultado', 'terminar lleva a resultados');
+    check(await page.textContent('#grScore') === '60' && await page.locator('#grErrors .weak-item').count() === 1, 'resultado: 60 pts y 1 error para repasar');
+    await dismiss(page);
+    let st = await ls(page, RSTI_KEY);
+    check(st.games.taBest === 60 && Object.keys(st.cards).length === 5, 'récord guardado y las 5 respuestas alimentan el repaso');
+    // Verdadero o falso: se contesta hasta fallar 3 veces (las que acierte por azar no cuentan)
+    await page.goto(BASE + '#/juegos');
+    await tap(page, '[data-action="startGame"][data-game="vf"]');
+    check(await page.isVisible('#gameVf') && (await page.textContent('#gameClaim')).includes('¿Es esta la respuesta correcta?'), 'V/F muestra una respuesta propuesta');
+    for (let tries = 0; tries < 60 && await hash(page) !== '#/juegos/resultado'; tries++) {
+      await page.click('.vf-btn >> nth=' + (tries % 2));
+      if (await page.isVisible('#gameFeedback [data-action]')) await page.click('#gameFeedback [data-action]');
+    }
+    check(await hash(page) === '#/juegos/resultado', 'al perder las 3 vidas termina la partida');
+    check(await page.locator('#grErrors .weak-item').count() === 3, 'muestra las 3 fallas con su respuesta correcta');
+    check(page.errors.length === 0, 'sin errores de JavaScript' + (page.errors.length ? ': ' + page.errors : ''));
     await page.context().close();
   }
 } finally {

@@ -6,7 +6,7 @@ import { STATE, saveState } from '../state.js';
 import { registerPage, go } from '../router.js';
 import { registerActions } from '../actions.js';
 import { showToast } from '../ui.js';
-import { unlockAchievement } from '../progress.js';
+import { unlockAchievement, touchStreak } from '../progress.js';
 import { callGemini, getGeminiKey, openApiKeyModal } from '../ai.js';
 
 const TABS = ['teoria', 'flash', 'quiz', 'feynman'];
@@ -85,6 +85,7 @@ Responde en español, tono de tutor cercano y directo, máximo 8 líneas totales
     fbEl.innerHTML = `<div class="feedback-box ok"><b>Feedback del tutor</b><br><br>${escapeHtml(result.text).replace(/\n/g, '<br>')}</div>`;
     STATE.feynmanCount = (STATE.feynmanCount || 0) + 1;
     saveState();
+    touchStreak();
     unlockAchievement('feynman_first');
     if (STATE.feynmanCount >= 10) unlockAchievement('feynman_pro');
   } else {
