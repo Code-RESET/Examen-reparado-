@@ -2,7 +2,7 @@
 // Estrategia: network-first con respaldo en caché (así funciona sin conexión).
 // Al cambiar archivos de la app, sube CACHE_NAME para que los celulares descarguen la versión nueva.
 
-const CACHE_NAME = 'rsti-study-v4';
+const CACHE_NAME = 'rsti-study-v6';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -27,6 +27,7 @@ const PRECACHE_URLS = [
   './js/views/aplicar.js',
   './js/views/exam.js',
   './js/views/flashcards.js',
+  './js/views/games.js',
   './js/views/home.js',
   './js/views/module.js',
   './js/views/quiz.js',

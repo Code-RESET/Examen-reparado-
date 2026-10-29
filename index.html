@@ -27,6 +27,7 @@
     <symbol id="i-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.5z"/></symbol>
     <symbol id="i-cards" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16"/></symbol>
     <symbol id="i-hash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 4 7 20M17 4l-2 16M4.5 9h16M3.5 15h16"/></symbol>
+    <symbol id="i-game" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7.5 10.5v4M5.5 12.5h4"/><circle cx="15.5" cy="11.5" r="1" fill="currentColor"/><circle cx="18" cy="14" r="1" fill="currentColor"/></symbol>
     <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
   </defs>
 </svg>
@@ -72,6 +73,7 @@
         </div>
       </div>
     </div>
+    <div class="content-card plan-card" id="planCard"></div>
     <div id="resumeCards"></div>
     <div class="quick-actions" id="quickActions"></div>
     <button class="content-card card-btn" id="aplicarCard" data-action="go" data-to="aplicar">
@@ -286,6 +288,95 @@
     <div id="eaResWrongList"></div>
     <button class="btn btn-primary" style="margin-top:16px;" data-action="go" data-to="inicio">Volver al inicio</button>
     <button class="btn btn-outline" style="margin-top:8px;" data-action="go" data-to="aplicar">Repetir examen (nuevo orden de respuestas)</button>
+  </div>
+
+  <!-- ===================== JUEGOS ===================== -->
+  <div class="view" id="view-games">
+    <div class="view-header">
+      <button class="back-btn" data-action="go" data-to="inicio" aria-label="Volver">←</button>
+      <div><div class="vh-title">Juegos</div><div class="vh-sub">cada respuesta cuenta para tu progreso</div></div>
+    </div>
+    <button class="game-card" data-action="startSurvival">
+      <span class="gc-ic surv">♥</span>
+      <span class="gc-body"><span class="gc-title">Supervivencia</span>
+        <span class="gc-desc">3 vidas y reloj. Cada 3 aciertos seguidos sube tu multiplicador; cada 10 recuperas una vida. Salen primero las que más fallas.</span>
+        <span class="gc-best" id="gmSurvBest"></span></span>
+    </button>
+    <button class="game-card" data-action="startPairs">
+      <span class="gc-ic pairs">⇄</span>
+      <span class="gc-body"><span class="gc-title">Parejas</span>
+        <span class="gc-desc">Relaciona 5 preguntas con su respuesta, 3 rondas. Cada error suma 5 segundos. Bate tu mejor tiempo.</span>
+        <span class="gc-best" id="gmPairsBest"></span></span>
+    </button>
+  </div>
+  <div class="view" id="view-survival">
+    <div class="view-header">
+      <button class="back-btn" data-action="exitSurvival" aria-label="Salir del juego">✕</button>
+      <div><div class="vh-title">Supervivencia</div><div class="vh-sub" id="svStreak"></div></div>
+    </div>
+    <div class="sv-hud">
+      <span class="sv-lives" id="svLives" aria-label="Vidas">♥♥♥</span>
+      <span class="sv-combo" id="svCombo">x1</span>
+      <span class="sv-score"><b id="svScore">0</b> pts</span>
+    </div>
+    <div class="sv-time"><div class="sv-time-bar"><div class="fill" id="svTimeFill"></div></div><span id="svTime">20 s</span></div>
+    <div class="quiz-q-card">
+      <div class="q-tag" id="svTag"></div>
+      <div class="q-text" id="svQuestion"></div>
+    </div>
+    <div class="opt-list" id="svOptions"></div>
+    <div id="svFeedback"></div>
+    <div style="margin-top:16px;"><button class="btn btn-primary" id="svNextBtn" data-action="svNext" hidden>Continuar →</button></div>
+  </div>
+  <div class="view" id="view-survivalEnd">
+    <div class="view-header">
+      <button class="back-btn" data-action="go" data-to="juegos" aria-label="Volver">←</button>
+      <div><div class="vh-title">Fin del juego</div></div>
+    </div>
+    <div class="result-hero">
+      <div class="r-label">Puntos</div>
+      <div class="r-score" id="svEndScore">0</div>
+      <div class="r-label" id="svEndMsg"></div>
+    </div>
+    <div class="result-grid">
+      <div class="result-stat"><div class="rs-num" id="svEndCorrect">0</div><div class="rs-lab">Aciertos</div></div>
+      <div class="result-stat"><div class="rs-num" id="svEndStreak">0</div><div class="rs-lab">Mejor racha</div></div>
+      <div class="result-stat"><div class="rs-num" id="svEndMissed">0</div><div class="rs-lab">Falladas</div></div>
+    </div>
+    <div class="section-label">Apréndete estas</div>
+    <div id="svEndList"></div>
+    <button class="btn btn-primary" style="margin-top:16px;" data-action="startSurvival">Jugar otra vez</button>
+    <button class="btn btn-outline" style="margin-top:8px;" data-action="go" data-to="juegos">Otros juegos</button>
+  </div>
+  <div class="view" id="view-pairs">
+    <div class="view-header">
+      <button class="back-btn" data-action="exitPairs" aria-label="Salir del juego">✕</button>
+      <div><div class="vh-title">Parejas</div><div class="vh-sub" id="prRound"></div></div>
+    </div>
+    <div class="quiz-meta"><span id="prMistakes"></span><span class="timer" id="prTime">0:00</span></div>
+    <div class="section-label">1 · Toca una pregunta</div>
+    <div class="pair-list" id="prQuestions"></div>
+    <div class="section-label">2 · Toca su respuesta</div>
+    <div class="pair-grid" id="prAnswers"></div>
+  </div>
+  <div class="view" id="view-pairsEnd">
+    <div class="view-header">
+      <button class="back-btn" data-action="go" data-to="juegos" aria-label="Volver">←</button>
+      <div><div class="vh-title">Fin del juego</div></div>
+    </div>
+    <div class="result-hero">
+      <div class="r-label">Tiempo (con castigos)</div>
+      <div class="r-score" id="prEndTime">0:00</div>
+      <div class="r-label" id="prEndMsg"></div>
+    </div>
+    <div class="result-grid two">
+      <div class="result-stat"><div class="rs-num" id="prEndPairs">0</div><div class="rs-lab">Parejas</div></div>
+      <div class="result-stat"><div class="rs-num" id="prEndMistakes">0</div><div class="rs-lab">Errores</div></div>
+    </div>
+    <div class="section-label">Apréndete estas</div>
+    <div id="prEndList"></div>
+    <button class="btn btn-primary" style="margin-top:16px;" data-action="startPairs">Jugar otra vez</button>
+    <button class="btn btn-outline" style="margin-top:8px;" data-action="go" data-to="juegos">Otros juegos</button>
   </div>
 
   <!-- ===================== PROGRESO ===================== -->
