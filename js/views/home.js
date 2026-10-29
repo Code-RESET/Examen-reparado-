@@ -1,7 +1,7 @@
 /* Página de inicio: selector de ruta, progreso general, atajos y cuadrícula de módulos. */
-import { $, escapeHtml, fmtClock } from '../util.js';
+import { $, escapeHtml, fmtClock, todayStr } from '../util.js';
 import { route, setRoute, questionsByModule, moduleShort } from '../study-routes.js';
-import { STATE } from '../state.js';
+import { STATE, saveState } from '../state.js';
 import { registerPage, go } from '../router.js';
 import { registerActions } from '../actions.js';
 import { showToast } from '../ui.js';
@@ -31,6 +31,7 @@ function renderHome() {
   $('heroModsTotal').textContent = route.modules.length;
   $('heroUnit').textContent = route.unitPlural;
 
+  renderPlan();
   renderResumeCards();
   renderQuickActions();
 
@@ -58,6 +59,60 @@ function renderHome() {
         <div class="mc-meta">${questionsByModule(m.id).length} preguntas · ${mPct}%</div>
       </button>`;
   }).join('');
+}
+
+/* ---------- Plan hacia el examen ----------
+   Con la fecha del examen calcula cuántas preguntas contestar hoy para dominar todo a tiempo
+   (una pregunta necesita ~3 aciertos espaciados para quedar dominada) y qué fase de estudio toca. */
+const REVIEWS_TO_MASTER = 3;
+let editingPlan = false;
+
+function daysUntil(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [ty, tm, td] = todayStr().split('-').map(Number);
+  return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(ty, tm - 1, td)) / 86400000);
+}
+
+export function planFor(examDate, pending, answeredToday) {
+  const days = daysUntil(examDate);
+  const goal = pending === 0 ? 20 : Math.min(150, Math.max(20, Math.ceil((pending * REVIEWS_TO_MASTER) / Math.max(1, days))));
+  let phase;
+  if (days < 0) phase = 'La fecha ya pasó. Si tu examen se movió, cambia la fecha.';
+  else if (days === 0) phase = 'Hoy es tu examen. Repasa solo los datos duros 15 minutos, nada nuevo. ¡Mucha suerte!';
+  else if (days <= 3) phase = 'Recta final: un Examen a Aplicar completo al día y datos duros. No estudies temas nuevos.';
+  else if (days <= 14) phase = 'Fase de repaso: juega Supervivencia y Parejas a diario y ataca tus puntos débiles.';
+  else phase = 'Fase de aprendizaje: un módulo por día (teoría y flashcards) y un juego para cerrar.';
+  return { days, goal, done: Math.min(answeredToday, goal), phase };
+}
+
+function renderPlan() {
+  const card = $('planCard');
+  const date = STATE.examDate;
+  if (!date || editingPlan) {
+    card.innerHTML = `
+      <h3>Mi plan para el examen</h3>
+      <p class="muted" style="font-size:15px; margin-bottom:10px;">Pon la fecha de tu examen y la app te dice cuántas preguntas contestar cada día para llegar con todo dominado.</p>
+      <div class="plan-form">
+        <input type="date" id="planDateInput" class="field" aria-label="Fecha del examen" value="${date || ''}" min="${todayStr()}">
+        <button class="btn btn-primary" data-action="savePlanDate">Guardar</button>
+      </div>`;
+    return;
+  }
+  const pending = route.questions.length - masteredCount(route.questions);
+  const answered = STATE.dailyLog[todayStr()]?.answered || 0;
+  const p = planFor(date, pending, answered);
+  const pct = Math.round((p.done / p.goal) * 100);
+  const daysLabel = p.days > 1 ? `Faltan ${p.days} días` : p.days === 1 ? 'Mañana es tu examen' : p.days === 0 ? 'Hoy es el examen' : 'Fecha pasada';
+  card.innerHTML = `
+    <div class="plan-head">
+      <div><div class="plan-days">${daysLabel}</div><div class="muted plan-sub">${pending} preguntas por dominar</div></div>
+      <button class="btn btn-sm" data-action="editPlanDate">Cambiar fecha</button>
+    </div>
+    ${p.days >= 0 ? `
+    <div class="plan-goal"><span>Meta de hoy</span><b>${p.done}/${p.goal} preguntas</b></div>
+    <div class="fc-progress-bar"><div class="fill${pct >= 100 ? ' done' : ''}" style="width:${pct}%"></div></div>
+    ${pct >= 100 ? '<div class="plan-ok">✓ Meta de hoy cumplida</div>' : ''}` : ''}
+    <p class="plan-phase">${escapeHtml(p.phase)}</p>`;
 }
 
 /* Tarjetas "Reanudar" para lo que quedó a medias (quiz, simulacro, examen a aplicar). */
@@ -90,6 +145,7 @@ function renderQuickActions() {
   const weakN = weakQuestions().length;
   const items = [
     `<button class="qa-btn primary" data-action="startQuiz"><span class="qa-ic"><svg><use href="#i-bolt"/></svg></span><span class="qa-label">Quiz rápido<span class="qa-sub">10 preguntas</span></span></button>`,
+    `<button class="qa-btn" data-action="go" data-to="juegos"><span class="qa-ic"><svg><use href="#i-game"/></svg></span><span class="qa-label">Juegos<span class="qa-sub">Supervivencia y Parejas</span></span></button>`,
     `<button class="qa-btn" data-action="startFlash"><span class="qa-ic"><svg><use href="#i-cards"/></svg></span><span class="qa-label">Flashcards<span class="qa-sub">Repaso espaciado</span></span></button>`,
     `<button class="qa-btn" data-action="go" data-to="examen"><span class="qa-ic"><svg><use href="#i-timer"/></svg></span><span class="qa-label">Modo examen<span class="qa-sub">Simulacro con tiempo</span></span></button>`,
   ];
@@ -106,6 +162,15 @@ registerPage('inicio', { view: 'home', nav: 'home', enter: renderHome });
 registerActions({
   go: ({ to }) => go(to),
   openModule: ({ id }) => go(`modulo/${id}/teoria`),
+  savePlanDate: () => {
+    const v = $('planDateInput').value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { showToast('Elige la fecha de tu examen.'); return; }
+    STATE.examDate = v;
+    editingPlan = false;
+    saveState();
+    renderPlan();
+  },
+  editPlanDate: () => { editingPlan = true; renderPlan(); },
   switchRoute: ({ route: id }) => {
     if (!setRoute(id)) return;
     touchStreak();

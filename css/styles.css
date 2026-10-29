@@ -464,3 +464,62 @@ code{font-family:var(--font-mono); font-size:0.88em; background:var(--bg-elev-2)
   .quick-actions{grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));}
   .quick-actions .qa-btn.wide{grid-column:auto; flex-direction:column; align-items:flex-start;}
 }
+
+/* ---------- Plan hacia el examen (inicio) ---------- */
+.plan-card{display:flex; flex-direction:column; gap:10px;}
+.plan-card h3{margin-bottom:0;}
+.plan-form{display:flex; gap:8px;}
+.plan-form .field{flex:1; min-width:0;}
+.plan-form .btn{width:auto; flex:none;}
+.plan-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+.plan-days{font-family:var(--font-display); font-weight:700; font-size:22px; letter-spacing:-0.02em;}
+.plan-sub{font-size:13px;}
+.plan-goal{display:flex; justify-content:space-between; font-size:15px; font-variant-numeric:tabular-nums;}
+.plan-goal b{font-weight:600;}
+.plan-card .fc-progress-bar{height:8px; border-radius:4px; margin:0;}
+.plan-card .fc-progress-bar .fill.done{background:var(--success);}
+.plan-ok{color:var(--success); font-weight:600; font-size:14px;}
+.plan-phase{font-size:14px; color:var(--text-dim) !important; line-height:1.45;}
+.qa-btn[data-to="juegos"] .qa-ic{background:#AF52DE;}
+
+/* ---------- Juegos ---------- */
+.game-card{
+  display:flex; gap:14px; align-items:flex-start; width:100%; text-align:left; margin-bottom:12px;
+  padding:16px; border:none; border-radius:var(--radius); background:var(--bg-elev); color:var(--text);
+  font:inherit; cursor:pointer; box-shadow:var(--shadow); transition:transform .15s ease;
+}
+.game-card:active{transform:scale(0.98); background:var(--bg-elev-2);}
+.gc-ic{flex:none; width:48px; height:48px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff;}
+.gc-ic.surv{background:#FF2D55;}
+.gc-ic.pairs{background:#5856D6;}
+.gc-body{display:flex; flex-direction:column; gap:4px; min-width:0;}
+.gc-title{font-family:var(--font-display); font-weight:700; font-size:19px;}
+.gc-desc{font-size:14px; color:var(--text-dim); line-height:1.4;}
+.gc-best{font-size:13px; font-weight:600; color:var(--accent); font-variant-numeric:tabular-nums;}
+
+.sv-hud{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+.sv-lives{font-size:24px; color:#FF2D55; letter-spacing:2px; line-height:1;}
+.sv-combo{font-weight:700; font-size:15px; padding:4px 10px; border-radius:999px; background:var(--bg-elev-2); color:var(--text-dim); font-variant-numeric:tabular-nums;}
+.sv-combo.hot{background:var(--warning-soft); color:var(--warning); animation:pop .3s ease;}
+.sv-score{font-size:15px; color:var(--text-dim); font-variant-numeric:tabular-nums;}
+.sv-score b{font-family:var(--font-display); font-size:22px; color:var(--text);}
+.sv-time{display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--text-dim);}
+.sv-time-bar{flex:1; height:8px; border-radius:4px; background:var(--bg-elev-2); overflow:hidden;}
+.sv-time-bar .fill{height:100%; width:100%; background:var(--accent); border-radius:4px;}
+.sv-time-bar .fill.low{background:var(--danger);}
+.result-grid.two{grid-template-columns:repeat(2,1fr);}
+
+.pair-list{display:flex; flex-direction:column; gap:8px;}
+.pair-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
+.pair-q, .pair-a{
+  width:100%; text-align:left; padding:12px 14px; border-radius:12px; border:1.5px solid transparent;
+  background:var(--bg-elev); color:var(--text); font:inherit; font-size:15px; line-height:1.35; cursor:pointer;
+  box-shadow:var(--shadow); overflow-wrap:anywhere; transition:background .15s, border-color .15s, opacity .3s;
+}
+.pair-a{font-weight:600; font-size:14px;}
+.pair-q.sel{border-color:var(--accent); background:var(--accent-soft);}
+.pair-q.done, .pair-a.done{border-color:var(--success); background:var(--success-soft); opacity:.55; pointer-events:none;}
+.shake{animation:shake .35s ease; border-color:var(--danger) !important;}
+@keyframes shake{0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);}}
+@keyframes pop{0%{transform:scale(1);} 50%{transform:scale(1.18);} 100%{transform:scale(1);}}
+@media (prefers-reduced-motion: reduce){.shake, .sv-combo.hot{animation:none;}}

@@ -25,6 +25,8 @@ function defaultState() {
     examSession: null,     // simulacro en curso, para reanudar
     lastExamResult: null,  // último simulacro terminado (página de resultados)
     aplicarSession: null,  // "Examen a Aplicar" en curso
+    games: { survivalBest: 0, pairsBest: null }, // récords de los juegos (puntos / segundos)
+    examDate: null,        // 'YYYY-MM-DD' del examen, para el plan diario
   };
 }
 

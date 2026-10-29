@@ -307,6 +307,62 @@ try {
     check(await page.isVisible('#searchResults .search-item.open .si-answer'), 'tocar un resultado muestra la respuesta');
     await page.context().close();
   }
+  console.log('\n12) Plan del examen y juegos');
+  {
+    const page = await open();
+    await exposeAnswers(page);
+    check(await page.isVisible('#planDateInput'), 'sin fecha, el inicio pide la fecha del examen');
+    const in10 = await page.evaluate(() => { const d = new Date(); d.setDate(d.getDate() + 10);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; });
+    await page.fill('#planDateInput', in10);
+    await tap(page, '[data-action="savePlanDate"]');
+    const plan = await page.textContent('#planCard');
+    // 322 por dominar × 3 repasos / 10 días = 97 al día
+    check(plan.includes('Faltan 10 días') && plan.includes('0/97 preguntas'), 'muestra días restantes y meta diaria (97)');
+    check((await ls(page, RSTI_KEY)).examDate === in10, 'la fecha se guarda');
+
+    await tap(page, '.qa-btn[data-to="juegos"]');
+    check(await hash(page) === '#/juegos', 'el atajo Juegos abre #/juegos');
+    check(await noHorizontalScroll(page), '#/juegos sin scroll horizontal');
+
+    await tap(page, '[data-action="startSurvival"]');
+    const svLetter = (ok) => page.evaluate((ok) => {
+      const c = window.__correctOf(document.getElementById('svQuestion').dataset.qid);
+      return ok ? c : [...document.querySelectorAll('#svOptions .opt-item')].map((b) => b.dataset.letter).find((l) => l !== c);
+    }, ok);
+    await tap(page, `#svOptions .opt-item[data-letter="${await svLetter(true)}"]`);
+    check(Number((await page.textContent('#svScore')).replace(/\D/g, '')) > 0, 'Supervivencia: un acierto suma puntos');
+    await page.waitForFunction(() => !document.querySelector('#svOptions .opt-item.disabled'));
+    for (let i = 0; i < 3; i++) {
+      await tap(page, `#svOptions .opt-item[data-letter="${await svLetter(false)}"]`);
+      await tap(page, '#svNextBtn');
+    }
+    check(await hash(page) === '#/juegos/supervivencia/fin', 'con 3 errores termina la partida');
+    check(await page.locator('#svEndList .weak-item').count() === 3, 'muestra las 3 falladas con su respuesta');
+    check((await ls(page, RSTI_KEY)).games.survivalBest > 0, 'el récord se guarda');
+
+    await tap(page, '[data-action="go"][data-to="juegos"] >> visible=true');
+    await tap(page, '[data-action="startPairs"]');
+    check(await page.locator('#prQuestions .pair-q').count() === 5 && await page.locator('#prAnswers .pair-a').count() === 5, 'Parejas: 5 preguntas y 5 respuestas');
+    check(await noHorizontalScroll(page), '#/juegos/parejas sin scroll horizontal');
+    // un error a propósito: primera pregunta con una respuesta que no es la suya
+    const ids = await page.$$eval('#prQuestions .pair-q', (b) => b.map((x) => x.dataset.id));
+    await tap(page, `#prQuestions .pair-q[data-id="${ids[0]}"]`);
+    await tap(page, `#prAnswers .pair-a[data-id="${ids[1]}"]`);
+    check((await page.textContent('#prMistakes')).includes('+5 s'), 'un error suma 5 segundos');
+    for (let r = 0; r < 3; r++) {
+      await page.waitForFunction((r) => document.getElementById('prRound').textContent.startsWith(`Ronda ${r + 1}`), r);
+      for (const id of await page.$$eval('#prQuestions .pair-q', (b) => b.map((x) => x.dataset.id))) {
+        await tap(page, `#prQuestions .pair-q[data-id="${id}"]`);
+        await tap(page, `#prAnswers .pair-a[data-id="${id}"]`);
+      }
+    }
+    await page.waitForFunction(() => location.hash === '#/juegos/parejas/fin');
+    check(await page.textContent('#prEndPairs') === '15' && await page.textContent('#prEndMistakes') === '1', 'termina con 15 parejas y 1 error');
+    check((await ls(page, RSTI_KEY)).games.pairsBest >= 5, 'el mejor tiempo se guarda (incluye el castigo)');
+    check(page.errors.length === 0, 'sin errores de JavaScript' + (page.errors.length ? ': ' + page.errors : ''));
+    await page.context().close();
+  }
 } finally {
   await browser.close();
   server.close();
