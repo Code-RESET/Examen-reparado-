@@ -308,6 +308,24 @@
         <span class="gc-desc">Relaciona 5 preguntas con su respuesta, 3 rondas. Cada error suma 5 segundos. Bate tu mejor tiempo.</span>
         <span class="gc-best" id="gmPairsBest"></span></span>
     </button>
+    <button class="game-card" data-action="startVf">
+      <span class="gc-ic vf">✓✗</span>
+      <span class="gc-body"><span class="gc-title">Verdadero o Falso</span>
+        <span class="gc-desc">60 segundos. Te muestro una pregunta con una respuesta: ¿es la correcta? Contesta todas las que puedas.</span>
+        <span class="gc-best" id="gmVfBest"></span></span>
+    </button>
+    <button class="game-card" data-action="startHang">
+      <span class="gc-ic hang">Aa</span>
+      <span class="gc-body"><span class="gc-title">Ahorcado</span>
+        <span class="gc-desc">Adivina la respuesta letra por letra, sin opciones. 5 palabras, 6 intentos cada una. Es el mejor para fijar siglas y nombres.</span>
+        <span class="gc-best" id="gmHangBest"></span></span>
+    </button>
+    <button class="game-card" data-action="startLadder">
+      <span class="gc-ic ladder">▲</span>
+      <span class="gc-body"><span class="gc-title">La Escalera</span>
+        <span class="gc-desc">15 preguntas cada vez más difíciles hasta 1,000,000 pts. Tienes un 50:50 y un cambio de pregunta. Si fallas, caes al último peldaño seguro.</span>
+        <span class="gc-best" id="gmLadderBest"></span></span>
+    </button>
   </div>
   <div class="view" id="view-survival">
     <div class="view-header">
@@ -376,6 +394,77 @@
     <div class="section-label">Apréndete estas</div>
     <div id="prEndList"></div>
     <button class="btn btn-primary" style="margin-top:16px;" data-action="startPairs">Jugar otra vez</button>
+    <button class="btn btn-outline" style="margin-top:8px;" data-action="go" data-to="juegos">Otros juegos</button>
+  </div>
+
+  <div class="view" id="view-vf">
+    <div class="view-header">
+      <button class="back-btn" data-action="exitVf" aria-label="Salir del juego">✕</button>
+      <div><div class="vh-title">Verdadero o Falso</div><div class="vh-sub" id="vfStreak"></div></div>
+    </div>
+    <div class="sv-hud"><span class="sv-score"><b id="vfHits">0</b> aciertos</span></div>
+    <div class="sv-time"><div class="sv-time-bar"><div class="fill" id="vfTimeFill"></div></div><span id="vfTime">60 s</span></div>
+    <div class="quiz-q-card vf-card" id="vfCard">
+      <div class="q-tag" id="vfTag"></div>
+      <div class="q-text" id="vfQuestion"></div>
+      <div class="vf-proposal-label">¿La respuesta es…?</div>
+      <div class="vf-proposal" id="vfProposal"></div>
+    </div>
+    <div class="vf-row">
+      <button class="vf-btn no" data-action="vfFalse">✗ Falso</button>
+      <button class="vf-btn yes" data-action="vfTrue">✓ Verdadero</button>
+    </div>
+    <p class="vf-last muted" id="vfLast"></p>
+  </div>
+  <div class="view" id="view-hang">
+    <div class="view-header">
+      <button class="back-btn" data-action="exitHang" aria-label="Salir del juego">✕</button>
+      <div><div class="vh-title">Ahorcado</div><div class="vh-sub" id="hgRound"></div></div>
+    </div>
+    <div class="quiz-q-card">
+      <div class="q-tag" id="hgTag"></div>
+      <div class="q-text" id="hgQuestion"></div>
+    </div>
+    <div class="hg-lives" id="hgLives" aria-label="Intentos restantes"></div>
+    <div class="hg-word" id="hgWord" aria-live="polite"></div>
+    <div id="hgFeedback"></div>
+    <div class="hg-keys" id="hgKeys"></div>
+    <div style="margin-top:16px;"><button class="btn btn-primary" id="hgNextBtn" data-action="hgNext" hidden>Siguiente palabra →</button></div>
+  </div>
+  <div class="view" id="view-ladder">
+    <div class="view-header">
+      <button class="back-btn" data-action="exitLadder" aria-label="Salir del juego">✕</button>
+      <div><div class="vh-title">La Escalera</div><div class="vh-sub" id="ldStep"></div></div>
+    </div>
+    <div class="ld-rungs" id="ldRungs" aria-hidden="true"></div>
+    <div class="ld-bank muted" id="ldBank"></div>
+    <div class="quiz-q-card" id="ldCard">
+      <div class="q-tag" id="ldTag"></div>
+      <div class="q-text" id="ldQuestion"></div>
+    </div>
+    <div class="opt-list" id="ldOptions"></div>
+    <div class="ld-tools" id="ldTools">
+      <button class="btn btn-sm" id="ldFifty" data-action="ldFifty">50:50</button>
+      <button class="btn btn-sm" id="ldSwap" data-action="ldSwap">Cambiar pregunta</button>
+      <button class="btn btn-sm" id="ldQuit" data-action="ldQuit">Retirarme</button>
+    </div>
+    <div id="ldFeedback"></div>
+    <div style="margin-top:16px;"><button class="btn btn-primary" id="ldNextBtn" data-action="ldNext" hidden>Siguiente pregunta →</button></div>
+  </div>
+  <div class="view" id="view-gameEnd">
+    <div class="view-header">
+      <button class="back-btn" data-action="go" data-to="juegos" aria-label="Volver">←</button>
+      <div><div class="vh-title" id="geTitle">Fin del juego</div></div>
+    </div>
+    <div class="result-hero">
+      <div class="r-label" id="geLabel"></div>
+      <div class="r-score" id="geScore">0</div>
+      <div class="r-label" id="geMsg"></div>
+    </div>
+    <div class="result-grid" id="geStats"></div>
+    <div class="section-label">Apréndete estas</div>
+    <div id="geList"></div>
+    <button class="btn btn-primary" style="margin-top:16px;" id="geAgain" data-action="startVf">Jugar otra vez</button>
     <button class="btn btn-outline" style="margin-top:8px;" data-action="go" data-to="juegos">Otros juegos</button>
   </div>
 

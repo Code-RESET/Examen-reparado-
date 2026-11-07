@@ -10,14 +10,15 @@ import { showToast } from '../ui.js';
 import { addXp, touchStreak, checkGlobalAchievements } from '../progress.js';
 import { correctOption, displayOptions, dueCardsFor, weakQuestions } from '../bank.js';
 
-const games = () => {
-  if (!STATE.games) STATE.games = { survivalBest: 0, pairsBest: null };
+const GAME_DEFAULTS = { survivalBest: 0, pairsBest: null, vfBest: 0, hangBest: 0, ladderBest: 0 };
+export const games = () => {
+  STATE.games = { ...GAME_DEFAULTS, ...(STATE.games || {}) };
   return STATE.games;
 };
-const buzz = (ms) => { try { navigator.vibrate?.(ms); } catch { /* sin vibración */ } };
+export const buzz = (ms) => { try { navigator.vibrate?.(ms); } catch { /* sin vibración */ } };
 
 /* Orden de estudio: primero lo que más fallas, luego lo que toca repasar, al final lo demás. */
-function studyOrder(pool) {
+export function studyOrder(pool) {
   const weak = weakQuestions().filter((q) => pool.includes(q));
   const due = shuffle(dueCardsFor(pool).filter((q) => !weak.includes(q)));
   const rest = shuffle(pool.filter((q) => !weak.includes(q) && !due.includes(q)));
@@ -25,8 +26,13 @@ function studyOrder(pool) {
 }
 
 /* ======================= Centro de juegos ======================= */
+const hubRenderers = [];
+/* Otros archivos de juegos pintan aquí su récord en la tarjeta del centro de juegos. */
+export function onHubRender(fn) { hubRenderers.push(fn); }
+
 function renderHub() {
   const g = games();
+  hubRenderers.forEach((fn) => fn(g));
   $('gmSurvBest').textContent = g.survivalBest ? `Récord: ${g.survivalBest.toLocaleString('es-MX')} pts` : 'Aún sin récord';
   $('gmPairsBest').textContent = g.pairsBest ? `Récord: ${fmtClock(g.pairsBest)}` : 'Aún sin récord';
 }
