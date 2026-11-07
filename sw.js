@@ -2,7 +2,7 @@
 // Estrategia: network-first con respaldo en caché (así funciona sin conexión).
 // Al cambiar archivos de la app, sube CACHE_NAME para que los celulares descarguen la versión nueva.
 
-const CACHE_NAME = 'rsti-study-v7';
+const CACHE_NAME = 'rsti-study-v8';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -41,7 +41,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
       // Cachea lo que exista; si algún archivo falta, no rompe la instalación.
-      Promise.all(PRECACHE_URLS.map((url) => cache.add(url).catch(() => null)))
+      // cache:'reload' baja cada archivo del servidor; sin eso podía guardar copias viejas de la caché del navegador
+      Promise.all(PRECACHE_URLS.map((url) => cache.add(new Request(url, { cache: 'reload' })).catch(() => null)))
     )
   );
 });
@@ -61,7 +62,10 @@ self.addEventListener('fetch', (event) => {
   if (new URL(event.request.url).origin !== self.location.origin) return;
 
   event.respondWith(
-    fetch(event.request)
+    // cache:'no-cache' pregunta al servidor si el archivo cambió. GitHub Pages deja que el navegador guarde
+    // cada archivo 10 minutos; sin esto, tras una actualización se mezclaban archivos nuevos con viejos
+    // (p.ej. index.html nuevo con main.js viejo) y los botones nuevos no hacían nada.
+    fetch(event.request, { cache: 'no-cache' })
       .then((response) => {
         // Solo se guardan respuestas correctas: un 404 en caché rompería el modo sin conexión.
         if (response.ok) {
