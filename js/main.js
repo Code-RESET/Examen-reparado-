@@ -14,6 +14,7 @@ import './views/exam.js';
 import './views/aplicar.js';
 import './views/stats.js';
 import './views/games.js';
+import './views/games-extra.js';
 
 installActionListener();
 

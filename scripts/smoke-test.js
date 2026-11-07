@@ -363,6 +363,82 @@ try {
     check(page.errors.length === 0, 'sin errores de JavaScript' + (page.errors.length ? ': ' + page.errors : ''));
     await page.context().close();
   }
+  console.log('\n13) Verdadero o Falso, Ahorcado y La Escalera');
+  {
+    const page = await open({ clock: Date.now() });
+    await page.evaluate(async () => {
+      const { QUESTIONS } = await import('./data/rsti.js');
+      const m = new Map(QUESTIONS.map((q) => [String(q.id), q]));
+      window.__q = (id) => m.get(String(id));
+    });
+    await page.goto(BASE + '#/juegos');
+    check(await page.locator('.game-card').count() === 5, 'el centro de juegos muestra 5 juegos');
+
+    // Verdadero o Falso
+    await tap(page, '[data-action="startVf"]');
+    for (let i = 0; i < 3; i++) {
+      const truth = await page.getAttribute('#vfCard', 'data-truth');
+      await tap(page, truth === '1' ? '[data-action="vfTrue"]' : '[data-action="vfFalse"]');
+    }
+    const truth = await page.getAttribute('#vfCard', 'data-truth');
+    await tap(page, truth === '1' ? '[data-action="vfFalse"]' : '[data-action="vfTrue"]');
+    check(await page.textContent('#vfHits') === '3' && (await page.textContent('#vfLast')).includes('Respuesta:'), 'V/F: cuenta aciertos y explica el error');
+    await page.clock.runFor(61000);
+    await page.waitForFunction(() => location.hash === '#/juegos/fin');
+    check(await page.textContent('#geScore') === '3' && await page.locator('#geList .weak-item').count() === 1, 'V/F: a los 60 s muestra 3 aciertos y la fallada');
+    check((await ls(page, RSTI_KEY)).games.vfBest === 3, 'V/F: el récord se guarda');
+
+    // Ahorcado
+    await tap(page, '#geAgain >> visible=true');
+    check(await hash(page) === '#/juegos/vf', '"Jugar otra vez" reinicia el mismo juego');
+    await page.goto(BASE + '#/juegos');
+    await tap(page, '[data-action="startHang"]');
+    const keysFor = (wrong) => page.evaluate((wrong) => {
+      const q = window.__q(document.querySelector('#view-hang .q-text').dataset.qid);
+      const fold = (c) => { const u = c.toUpperCase(); return u === 'Ñ' ? u : u.normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+      const ans = q.options.find((o) => o.letter === q.correct).text;
+      const letters = [...new Set([...ans].filter((c) => /[\p{L}\d]/u.test(c)).map(fold))];
+      const all = 'QWERTYUIOPASDFGHJKLÑZXCVBNM1234567890'.split('');
+      return wrong ? all.filter((k) => !letters.includes(k)).slice(0, 6) : letters;
+    }, wrong);
+    for (let w = 0; w < 5; w++) {
+      for (const k of await keysFor(w === 1)) await tap(page, `.hg-key[data-k="${k}"]`);
+      check(await page.isVisible('#hgNextBtn'), `Ahorcado: palabra ${w + 1} ${w === 1 ? 'se pierde con 6 errores' : 'se resuelve'}`);
+      await tap(page, '#hgNextBtn');
+    }
+    await page.waitForFunction(() => location.hash === '#/juegos/fin');
+    check(await page.textContent('#geTitle') === 'Ahorcado' && await page.textContent('#geScore') === '240', 'Ahorcado: 4 resueltas sin errores = 240 pts');
+    check(await page.locator('#geList .weak-item').count() === 1, 'Ahorcado: muestra la que no resolviste');
+
+    // La Escalera: 50:50, 5 aciertos y retirarse con 1,000
+    await page.goto(BASE + '#/juegos');
+    await tap(page, '[data-action="startLadder"]');
+    await tap(page, '#ldFifty');
+    check(await page.locator('#ldOptions .opt-item.gone').count() === 2, 'Escalera: el 50:50 quita dos opciones incorrectas');
+    for (let i = 0; i < 5; i++) {
+      const c = await page.evaluate(() => window.__q(document.getElementById('ldCard').dataset.qid).correct);
+      await tap(page, `#ldOptions .opt-item[data-letter="${c}"]`);
+      await tap(page, '#ldNextBtn');
+    }
+    check((await page.textContent('#ldBank')).includes('1,000'), 'Escalera: tras 5 aciertos llevas 1,000');
+    await tap(page, '#ldQuit');
+    await page.waitForFunction(() => location.hash === '#/juegos/fin');
+    check(await page.textContent('#geScore') === '1,000', 'Escalera: retirarte conserva 1,000 pts');
+    // Fallar en la primera pregunta deja 0
+    await tap(page, '#geAgain >> visible=true');
+    const c0 = await page.evaluate(() => window.__q(document.getElementById('ldCard').dataset.qid).correct);
+    await tap(page, `#ldOptions .opt-item:not([data-letter="${c0}"]) >> nth=0`);
+    await tap(page, '#ldNextBtn');
+    await page.waitForFunction(() => location.hash === '#/juegos/fin');
+    check(await page.textContent('#geScore') === '0' && (await ls(page, RSTI_KEY)).games.ladderBest === 1000, 'Escalera: fallar la primera da 0 y el récord sigue en 1,000');
+    for (const p of ['juegos/vf', 'juegos/ahorcado', 'juegos/escalera']) {
+      await page.goto(BASE + '#/juegos');
+      await tap(page, `[data-action="${{ 'juegos/vf': 'startVf', 'juegos/ahorcado': 'startHang', 'juegos/escalera': 'startLadder' }[p]}"]`);
+      check(await noHorizontalScroll(page), `#/${p} sin scroll horizontal`);
+    }
+    check(page.errors.length === 0, 'sin errores de JavaScript' + (page.errors.length ? ': ' + page.errors : ''));
+    await page.context().close();
+  }
 } finally {
   await browser.close();
   server.close();
